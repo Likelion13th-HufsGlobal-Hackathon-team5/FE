@@ -35,6 +35,7 @@ const Setting = () => {
       <SettingBtn onClick={() => navigate("/signin")}>회원가입 페이지</SettingBtn>
       <SettingBtn onClick={() => navigate("/airecommend")}>AI추천 페이지</SettingBtn>
       <SettingBtn onClick={() => navigate("/idmodal")}>아이디 변경모달</SettingBtn>
+      <SettingBtn onClick={() => navigate("/navbar")}>네브바</SettingBtn>
     </PageContainer>
   );
 };

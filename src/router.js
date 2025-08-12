@@ -15,6 +15,7 @@ import Signin from "./pages/signin";
 import Setting from "./setting";
 import AiRecommendation from "./pages/airecommend";
 import IdModal from "./pages/modals/idmodal";
+import Navbar from "./components/navbar";
 
 const RouterComponent = () => {
     return (
@@ -35,6 +36,7 @@ const RouterComponent = () => {
           <Route path="/signin" element={<Signin/>} />
           <Route path="/airecommend" element={<AiRecommendation/>} />
           <Route path="/idmodal" element={<IdModal/>} />
+          <Route path="/navbar" element={<Navbar/>} />
         </Routes>
     );
   };
