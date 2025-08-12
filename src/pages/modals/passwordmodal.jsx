@@ -1,5 +1,5 @@
 // src/pages/modals/passwordmodal.jsx
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 
 /* ===== 폰트 & 이미지 불러오기 ===== */
@@ -14,40 +14,22 @@ const GlobalFonts = createGlobalStyle`
 `;
 
 /* ===== 비밀번호 변경 모달 ===== */
-export default function PasswordModal({ savedPassword = "1234", onClose = () => {} }) {
+export default function PasswordModal({ savedPassword = "1234" }) {
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
 
-  // 기존 비밀번호 일치 여부
   const isCurrentMatch = useMemo(
     () => currentPw.length > 0 && currentPw === savedPassword,
     [currentPw, savedPassword]
   );
   const showCurrentMsg = currentPw.length > 0;
 
-  // 새 비밀번호 === 확인 비밀번호
   const isPwMatched = useMemo(
     () => confirmPw.length > 0 && newPw === confirmPw,
     [newPw, confirmPw]
   );
   const showMatchMsg = confirmPw.length > 0;
-
-  // 두 조건 모두 만족해야 변경 가능
-  const canSubmit = isCurrentMatch && isPwMatched;
-
-  // ESC로 닫기 (옵션)
-  useEffect(() => {
-    const onKey = (e) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
-  const handleCancel = () => onClose();
-  const handleConfirm = () => {
-    if (!canSubmit) return;   // 조건 불만족이면 아무 것도 안 함
-    onClose();                // 조건 만족 시 모달 닫기
-  };
 
   return (
     <>
@@ -98,19 +80,8 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
 
           {/* 버튼 */}
           <Buttons>
-            <Button type="button" data-variant="cancel" onClick={handleCancel}>
-              취소
-            </Button>
-            <Button
-              type="button"
-              data-variant="confirm"
-              onClick={handleConfirm}
-              disabled={!canSubmit}
-              aria-disabled={!canSubmit}
-              title={!canSubmit ? "기존 비밀번호/새 비밀번호 확인을 완료하세요" : "비밀번호 변경"}
-            >
-              변경하기
-            </Button>
+            <Button data-variant="cancel">취소</Button>
+            <Button data-variant="confirm">변경하기</Button>
           </Buttons>
         </Card>
       </Wrap>
@@ -197,10 +168,4 @@ const Button = styled.button`
 
   &[data-variant="cancel"] { background: #E8E8E8; color: #32885D; }
   &[data-variant="confirm"]{ background: #32885D; color: #fff; }
-
-  &:disabled {
-    background: #ccc;
-    color: #666;
-    cursor: not-allowed;
-  }
 `;

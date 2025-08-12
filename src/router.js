@@ -13,6 +13,8 @@ import NewReview from "./pages/newreview";
 import Review from "./pages/review";
 import Signin from "./pages/signin";
 import Setting from "./setting";
+import AiRecommendation from "./pages/airecommend";
+import IdModal from "./pages/modals/idmodal";
 
 const RouterComponent = () => {
     return (
@@ -31,6 +33,8 @@ const RouterComponent = () => {
           <Route path="/newreview" element={<NewReview />} />
           <Route path="/review" element={<Review/>} />
           <Route path="/signin" element={<Signin/>} />
+          <Route path="/airecommend" element={<AiRecommendation/>} />
+          <Route path="/idmodal" element={<IdModal/>} />
         </Routes>
     );
   };

@@ -33,6 +33,8 @@ const Setting = () => {
       <SettingBtn onClick={() => navigate("/newreview")}>리뷰작성 페이지</SettingBtn>
       <SettingBtn onClick={() => navigate("/review")}>리뷰 페이지</SettingBtn>
       <SettingBtn onClick={() => navigate("/signin")}>회원가입 페이지</SettingBtn>
+      <SettingBtn onClick={() => navigate("/airecommend")}>AI추천 페이지</SettingBtn>
+      <SettingBtn onClick={() => navigate("/idmodal")}>아이디 변경모달</SettingBtn>
     </PageContainer>
   );
 };

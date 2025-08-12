@@ -42,4 +42,5 @@ body {
     sans-serif,"TJJoyofsingingB";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -ms-overflow-style: none; /* IE/Edge 전용 */
 }
