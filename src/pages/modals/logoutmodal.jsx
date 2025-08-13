@@ -1,6 +1,7 @@
 // src/pages/modals/logoutmodal.jsx
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
+import { useNavigate } from "react-router-dom"; 
 
 // ===== 폰트 & 이미지 불러오기 =====
 import JoyB from "../../fonts/TJJoyofsingingB_TTF.ttf"; // Bold 폰트
@@ -16,17 +17,28 @@ const GlobalFonts = createGlobalStyle`
   }
 `;
 
-export default function LogoutModal() {
+export default function LogoutModal({ onClose }) { // onClose prop 받기
+  const navigate = useNavigate();
+
+  const handleCancel = () => {
+    onClose?.();                 // 모달 닫기
+  };
+
+  const handleLogout = () => {
+    onClose?.();                 // 닫고
+    navigate("/login");          // 로그인 페이지로 이동 (라우트에 맞게 변경 가능)
+  };
+
   return (
     <>
       <GlobalFonts />
-      <Wrap>
+      <Wrap role="dialog" aria-modal="true">
         <Card>
           <Mascot src={mascot} alt="연필조아용" />
           <Message>정말 로그아웃 하시겠어요?</Message>
           <Buttons>
-            <Button data-variant="cancel">취소</Button>
-            <Button data-variant="confirm">Logout</Button>
+            <Button data-variant="cancel" onClick={handleCancel}>취소</Button>
+            <Button data-variant="confirm" onClick={handleLogout}>Logout</Button>
           </Buttons>
         </Card>
       </Wrap>
@@ -67,30 +79,30 @@ const Mascot = styled.img`
   user-select: none;
 `;
 
-/* 모달 메시지 (글씨 크기 16px, 굵기 Bold, 색상 #32885D) */
+/* 모달 메시지 */
 const Message = styled.p`
   color: #32885d;
   font-family: "TJJoyofsingingB", sans-serif;
   font-weight: 700;
-  font-size: 1rem; /* 16px */
+  font-size: 1rem;
   margin-top: auto;
   margin-bottom: auto;
 `;
 
-/* 버튼 영역 (버튼 간격 12px, 하단 여백 16px) */
+/* 버튼 영역 */
 const Buttons = styled.div`
   display: flex;
-  gap: 0.75rem; /* 12px */
-  margin-bottom: 1rem; /* 16px */
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 `;
 
-/* 버튼 스타일 (가로 120px, 세로 40px) */
+/* 버튼 스타일 */
 const Button = styled.button`
-  width: 7.5rem; /* 120px */
-  height: 2.5rem; /* 40px */
+  width: 7.5rem;
+  height: 2.5rem;
   border: none;
-  border-radius: 1.25rem; /* 20px */
-  font-size: 0.875rem; /* 14px */
+  border-radius: 1.25rem;
+  font-size: 0.875rem;
   font-family: "TJJoyofsingingB", sans-serif;
   font-weight: 700;
   cursor: pointer;
