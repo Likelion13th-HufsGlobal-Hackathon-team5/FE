@@ -115,7 +115,9 @@ const Card = styled.div`
   background: #fff;
   border-radius: 1.25rem;
   box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
+  width: 18.75rem; /* 300px */
 `;
+
 
 const Inner = styled.div`
   --form-w: 17.25rem;
