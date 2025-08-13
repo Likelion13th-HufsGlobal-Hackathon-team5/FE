@@ -150,7 +150,7 @@ const Inner = styled.div`
   --input-h: 3rem;
   --pad-x: 1rem;
 
-  padding-top: 3.5rem; /* 마스코트 공간 */
+  padding-top: 1.5rem; /* 마스코트 공간 */
   display: flex;
   flex-direction: column;
   align-items: center;
