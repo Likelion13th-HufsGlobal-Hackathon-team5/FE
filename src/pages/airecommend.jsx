@@ -60,15 +60,16 @@ export default function AiRecommendation() {
             <Slider {...sliderSettings}>
               {[1, 2, 3].map((n) => (
                 <ImageBox key={n}>
-                  <ImagePlaceholder />
+                  <ImagePlaceholder>
+                    <InfoContianer>
+                      <FestivalName>{card.name}</FestivalName>
+                      <Date>{card.date}</Date>
+                    </InfoContianer>
+                  </ImagePlaceholder>
                 </ImageBox>
               ))}
             </Slider>
           </ImageSlider>
-          <CardFooter>
-            <FestivalName>{card.name}</FestivalName>
-            <Date>{card.date}</Date>
-          </CardFooter>
         </Card>
       ))}
       </CardContainer>
@@ -123,12 +124,13 @@ const CardContainer = styled.div`
 
 
 const Card = styled.div`
-  background: #fff;
-  border-radius: 1rem;
   height : 16.44rem;
   padding: 0.8rem;
   margin-top: 1rem;
-  box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+  border-radius: 0.5rem;
+  border: 1.5px solid #A9A9A9;
+  background: #FCFAF0;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
 
   @media (min-width: 768px) {
     padding: 1rem;
@@ -170,21 +172,31 @@ const ImageBox = styled.div`
 
 const ImagePlaceholder = styled.div`
   background: skyblue;
-  height: 100%;
+  height: 12.31rem;
   border-radius: 0.8rem;
+  padding: 0.625rem;
+  display: flex;
+  box-sizing: border-box;
+  align-items: end;
 `;
 
-const CardFooter = styled.div`
+const InfoContianer = styled.div`
   display: flex;
   flex-direction: column;
-`;
+`
 
 const FestivalName = styled.span`
-  font-weight: bold;
-  font-size: clamp(0.85rem, 1.8vw, 1rem);
+  font-size: 0.9375rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  font-family: "TJJoyofsingingB";
 `;
 
 const Date = styled.span`
-  font-size: clamp(0.75rem, 1.5vw, 0.85rem);
-  color: #888;
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 300;
+  line-height: normal;
+  font-family: "TJJoyofsingingL";
 `;
