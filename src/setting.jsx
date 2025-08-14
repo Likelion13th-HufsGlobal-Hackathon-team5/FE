@@ -27,6 +27,7 @@ const Setting = () => {
       <SettingBtn onClick={() => navigate("/bookmark")}>북마크 페이지</SettingBtn>
       <SettingBtn onClick={() => navigate("/keyword")}>키워드 페이지</SettingBtn>
       <SettingBtn onClick={() => navigate("/loading")}>로딩 페이지</SettingBtn>
+      <SettingBtn onClick={() => navigate("/detail")}>상세보기 페이지</SettingBtn>
       <SettingBtn onClick={() => navigate("/login")}>로그인 페이지</SettingBtn>
       <SettingBtn onClick={() => navigate("/main")}>메인 페이지</SettingBtn>
       <SettingBtn onClick={() => navigate("/mypage")}>마이 페이지</SettingBtn>
