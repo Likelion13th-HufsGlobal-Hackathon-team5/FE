@@ -13,7 +13,7 @@ const MyPageContainer = styled.div`
   flex-direction: column;
   align-items: center;
   width: 24.5625rem; 
-  height: 53.25rem;  
+  height: 53.25rem;   
   background-image: url(${bg});
 `;
 
@@ -170,7 +170,7 @@ const LogoutText = styled.div`
 
 function MyPage() {
     const navigate = useNavigate();
-    const [user, setUser] = useState({
+    const [user] = useState({
         nickname: "조아용",
         id: "joayong_123",
         birth: 2000,
