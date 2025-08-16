@@ -1,6 +1,7 @@
 // src/pages/loading.jsx
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom"; // 🔹 페이지 이동을 위한 훅
 
 // ===== 이미지 불러오기 =====
 import bgImage from "../assets/signup-bg.png";
@@ -8,6 +9,28 @@ import parkImage from "../assets/공원조아용.png";
 
 // ===== 로딩 페이지 컴포넌트 =====
 export default function LoadingPage() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // ---------------------------
+    // [목데이터 부분]
+    // 지금은 서버가 없으니까,
+    // 3초 기다린 뒤 메인(/main) 페이지로 이동
+    // ---------------------------
+    const timer = setTimeout(() => {
+      navigate("/main"); // 원하는 경로로 교체 가능
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [navigate]);
+
+  // ---------------------------
+  // [실제 연동으로 교체할 부분]
+  // const res = await api.get("/bootstrap");
+  // if(res.data.ok) { navigate("/main"); }
+  // else { navigate("/error"); }
+  // ---------------------------
+
   return (
     <Container>
       {/* 중앙 이미지 */}
