@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import bg from "../assets/review_bg.png"
 import backicon from "../assets/back_blue.svg"; 
-import { ReactComponent as Crt } from "../assets/따봉조아용.svg"; 
+import { ReactComponent as Crt } from "../assets/thumb.svg"; 
 import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`

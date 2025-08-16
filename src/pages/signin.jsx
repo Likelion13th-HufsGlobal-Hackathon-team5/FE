@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { useNavigate } from "react-router-dom"; // 추가
+import { useNavigate } from "react-router-dom"; 
 import bgImage from "../assets/signup-bg.png";
+
+/* === 이미지 import (뒤로가기 아이콘) === */
+import backIcon from "../assets/back.svg";   
+ // 🔙 뒤로가기 아이콘 (assets 폴더에 있는 파일명 맞게 변경)
 
 /* === 폰트 파일 import === */
 import DNFBitBit from "../fonts/DNFBitBitTTF.ttf";
@@ -27,7 +31,7 @@ const FontStyles = createGlobalStyle`
 `;
 
 export default function Signin() {
-  const navigate = useNavigate(); // 추가
+  const navigate = useNavigate(); 
 
   const [nickname, setNickname] = useState("");
   const [isNickAvailable, setIsNickAvailable] = useState(null);
@@ -70,19 +74,24 @@ export default function Signin() {
     password.length > 0 &&
     passwordConfirm.length > 0 &&
     isPasswordMatch === true &&
-    isNickAvailable === true &&   // 반드시 중복확인 통과(클릭)해야 true
-    isIdAvailable === true;       // 반드시 중복확인 통과(클릭)해야 true
+    isNickAvailable === true &&
+    isIdAvailable === true;
 
   // ✅ 가입하기 클릭
   const handleSignUp = () => {
-    if (!isFormValid) return;     // 조건 미충족이면 아무 반응 없음
+    if (!isFormValid) return;
     navigate("/main");
-               // 메인 라우트에 맞게 경로 필요 시 수정
   };
 
   return (
     <Container>
       <FontStyles />
+
+      {/* 🔙 뒤로가기 버튼 */}
+      <BackButton onClick={() => navigate("/login")}>
+        <img src={backIcon} alt="뒤로가기" />
+      </BackButton>
+
       <Title>회원가입</Title>
       <Form>
         {/* 닉네임 */}
@@ -93,7 +102,7 @@ export default function Signin() {
               value={nickname}
               onChange={(e) => {
                 setNickname(e.target.value);
-                setIsNickAvailable(null); // 입력 변경 시 재검증 요구
+                setIsNickAvailable(null);
               }}
             />
             <CheckButton onClick={checkNickAvailability}>
@@ -121,7 +130,7 @@ export default function Signin() {
               value={id}
               onChange={(e) => {
                 setId(e.target.value);
-                setIsIdAvailable(null); // 입력 변경 시 재검증 요구
+                setIsIdAvailable(null);
               }}
             />
             <CheckButton onClick={checkIdAvailability}>
@@ -142,7 +151,9 @@ export default function Signin() {
           value={password}
           onChange={(e) => {
             setPassword(e.target.value);
-            setIsPasswordMatch(e.target.value.length > 0 && e.target.value === passwordConfirm);
+            setIsPasswordMatch(
+              e.target.value.length > 0 && e.target.value === passwordConfirm
+            );
           }}
         />
 
@@ -165,7 +176,7 @@ export default function Signin() {
         <SignUpButton
           type="button"
           onClick={handleSignUp}
-          disabled={!isFormValid}   // 조건 미충족 시 비활성화(아무 반응 없음)
+          disabled={!isFormValid}
         >
           가입하기
         </SignUpButton>
@@ -270,10 +281,23 @@ const SignUpButton = styled.button`
   font-family: 'DNFBitBitTTF', sans-serif;
   box-shadow: 0.125rem 0.25rem 0.4375rem rgba(0, 0, 0, 0.3);
 
-  /* 비활성화 시 "아무 반응 없음" 유지 */
   &:disabled {
-    pointer-events: none;  /* 클릭해도 반응 없음 */
-    /* 필요하면 시각적 변화 제거: opacity 유지 */
+    pointer-events: none;
     opacity: 1;
+  }
+`;
+
+// 뒤로가기 버튼 스타일
+const BackButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  align-self: flex-start;
+  margin-left: 5px;        /* 오른쪽으로 10px 밀기 (원하는 값으로 조정) */
+  margin-top: -5px;   
+
+  img {
+    width: 40px;  /* 크기 40x40 */
+    height: 40px;
   }
 `;

@@ -1,5 +1,6 @@
 // src/pages/modals/passwordmodal.jsx
 import React, { useMemo, useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import styled, { createGlobalStyle } from "styled-components";
 
 /* ===== 폰트 & 이미지 불러오기 ===== */
@@ -7,10 +8,13 @@ import JoyM from "../../fonts/TJJoyofsingingM_TTF.ttf"; // Medium
 import JoyB from "../../fonts/TJJoyofsingingB_TTF.ttf"; // Bold
 import mascot from "../../assets/연필조아용.png";        // 마스코트
 
-/* ===== 전역 폰트 등록 ===== */
+/* ===== 전역 폰트 등록 & 스크롤 잠금 ===== */
 const GlobalFonts = createGlobalStyle`
   @font-face { font-family: "TJJoyofsingingM"; src: url(${JoyM}) format("truetype"); font-weight: 500; }
   @font-face { font-family: "TJJoyofsingingB"; src: url(${JoyB}) format("truetype"); font-weight: 700; }
+`;
+const ScrollLock = createGlobalStyle`
+  body { overflow: hidden; touch-action: none; }
 `;
 
 /* ===== 비밀번호 변경 모달 ===== */
@@ -36,7 +40,7 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
   // 두 조건 모두 만족해야 변경 가능
   const canSubmit = isCurrentMatch && isPwMatched;
 
-  // ESC로 닫기 (옵션)
+  // ESC로 닫기
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -45,15 +49,17 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
 
   const handleCancel = () => onClose();
   const handleConfirm = () => {
-    if (!canSubmit) return;   // 조건 불만족이면 아무 것도 안 함
-    onClose();                // 조건 만족 시 모달 닫기
+    if (!canSubmit) return;
+    onClose();
   };
 
-  return (
+  // === 여기서 핵심: 포털 + fixed 백드롭으로 부모 레이아웃에 영향 0 ===
+  const modal = (
     <>
       <GlobalFonts />
-      <Wrap>
-        <Card>
+      <ScrollLock />
+      <Backdrop onClick={onClose}>
+        <Dialog role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
           <Mascot src={mascot} alt="연필조아용" />
 
           {/* 기존 비밀번호 */}
@@ -112,30 +118,41 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
               변경하기
             </Button>
           </Buttons>
-        </Card>
-      </Wrap>
+        </Dialog>
+      </Backdrop>
     </>
   );
+
+  // body로 포털 렌더 → 페이지가 아래로 안 밀림
+  return ReactDOM.createPortal(modal, document.body);
 }
 
-/* ===== 중앙 정렬 컨테이너 (가로 300px, 상단 여백 110px) ===== */
-const Wrap = styled.div`
-  width: 18.75rem;            /* 300px */
-  margin: 6.875rem auto 0;    /* 110px auto 0 */
-  overflow: visible;
+/* ====== 스타일 ====== */
+/* 화면 전체를 덮는 반투명 배경 + 중앙정렬 (레이아웃 영향 X) */
+const Backdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 `;
 
-/* ===== 카드 (가로 300px, 세로 자동, 상단 패딩 66px) ===== */
-const Card = styled.div`
+/* 모달 박스 */
+const Dialog = styled.div`
   position: relative;
-  width: 18.75rem;            /* 300px */
+  width: 18.75rem;
+  max-width: calc(100vw - 2rem);
   background: #fff;
-  border-radius: 1.25rem;     /* 20px */
-  box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,.15); /* 0 4px 12px */
-  padding: 4.125rem 1.25rem 1.25rem; /* 66px 20px 20px */
+  border-radius: 1.25rem;
+  box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,.15);
+  padding: 4.125rem 1.25rem 1.25rem;
+  transform: translateY(-5%);  /* 중앙 기준에서 위로 5% 올림 */
 `;
 
-/* ===== 마스코트 (위로 -45px, 가로 150px) ===== */
+
+/* 마스코트 (모달 상단 밖으로 살짝) */
 const Mascot = styled.img`
   position: absolute;
   top: -2.8125rem;            /* -45px */
@@ -147,14 +164,12 @@ const Mascot = styled.img`
   user-select: none;
 `;
 
-/* ===== 인풋 래퍼 (가운데 정렬) ===== */
 const InputBox = styled.div`
   width: 100%;
   display: flex;
   justify-content: center;
 `;
 
-/* ===== 인풋 (가로 240px, 높이 40px, R=10px) ===== */
 const Input = styled.input`
   width: 15rem;               /* 240px */
   height: 2.5rem;             /* 40px */
@@ -168,7 +183,6 @@ const Input = styled.input`
   :focus { outline: none; border-color: #32885d; }
 `;
 
-/* ===== 검증 문구 (초록 #00CA98 / 빨강 #FF5656) ===== */
 const Hint = styled.p`
   margin: 0.5rem 0 0 0.25rem; /* 8px 0 0 4px */
   font-size: 0.875rem;        /* 14px */
@@ -176,7 +190,6 @@ const Hint = styled.p`
   color: ${({ $ok }) => ($ok ? "#00CA98" : "#FF5656")};
 `;
 
-/* ===== 버튼 영역 (간격 12px, 상단 여백 20px) ===== */
 const Buttons = styled.div`
   display: flex;
   justify-content: center;
@@ -184,7 +197,6 @@ const Buttons = styled.div`
   margin-top: 1.25rem;        /* 20px */
 `;
 
-/* ===== 버튼 (가로 120px, 높이 40px, R=20px) ===== */
 const Button = styled.button`
   width: 7.5rem;              /* 120px */
   height: 2.5rem;             /* 40px */
