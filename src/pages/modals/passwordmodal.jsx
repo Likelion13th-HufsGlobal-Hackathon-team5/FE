@@ -17,28 +17,73 @@ const ScrollLock = createGlobalStyle`
   body { overflow: hidden; touch-action: none; }
 `;
 
+/* =========================================
+ * ① 목데이터(가짜 API) — 개발용
+ *    실제 연동 시 아래 함수들을 axios 호출로 교체
+ * ========================================= */
+
+// (목) 기존 비밀번호 검증: savedPassword와 일치해야 ok
+async function verifyPasswordMock({ savedPassword, inputPassword }) {
+  await new Promise((r) => setTimeout(r, 350)); // 네트워크 지연 흉내
+  const ok = !!inputPassword && inputPassword === savedPassword;
+  return { ok, message: ok ? "확인 완료" : "기존 비밀번호가 올바르지 않습니다." };
+}
+
+// (목) 비밀번호 변경: 🔥 4자 이상 조건 제거! 공백만 아니면 통과
+async function updatePasswordMock({ newPassword }) {
+  await new Promise((r) => setTimeout(r, 450));
+  if (!newPassword?.trim()) return { ok: false, message: "새 비밀번호를 입력해 주세요." };
+  // 길이 제한 없음
+  return { ok: true };
+}
+
+/* =========================================
+ * ② 실제 연동 시 교체할 포인트 (참고)
+ * -----------------------------------------
+ * import { api } from "../../lib/api";
+ *
+ * async function verifyPassword({ inputPassword }) {
+ *   const { data } = await api.post("/auth/verify-password", { password: inputPassword });
+ *   return { ok: data.ok, message: data.message };
+ * }
+ *
+ * async function updatePassword({ newPassword }) {
+ *   const { data } = await api.patch("/user/password", { newPassword });
+ *   return { ok: data.ok, message: data.message };
+ * }
+ * ========================================= */
+
 /* ===== 비밀번호 변경 모달 ===== */
-export default function PasswordModal({ savedPassword = "1234", onClose = () => {} }) {
+export default function PasswordModal({ savedPassword = "1234", onClose = () => {}, onChanged }) {
+  // ---------------------------
+  // [연동 준비]
+  // currentPw : 기존 비밀번호 입력
+  // newPw, confirmPw : 새 비밀번호 / 확인
+  // loading : 버튼 로딩 상태
+  // errorTop : 상단 에러(서버/검증 실패)
+  // ---------------------------
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errorTop, setErrorTop] = useState("");
 
-  // 기존 비밀번호 일치 여부
+  // 기존 비밀번호 일치 여부 (UI 피드백용)
   const isCurrentMatch = useMemo(
     () => currentPw.length > 0 && currentPw === savedPassword,
     [currentPw, savedPassword]
   );
   const showCurrentMsg = currentPw.length > 0;
 
-  // 새 비밀번호 === 확인 비밀번호
+  // 새 비밀번호 === 확인 비밀번호 (UI 피드백용)
   const isPwMatched = useMemo(
     () => confirmPw.length > 0 && newPw === confirmPw,
     [newPw, confirmPw]
   );
   const showMatchMsg = confirmPw.length > 0;
 
-  // 두 조건 모두 만족해야 변경 가능
-  const canSubmit = isCurrentMatch && isPwMatched;
+  // 두 조건 모두 만족해야 변경 버튼 활성화
+  const canSubmit = isCurrentMatch && isPwMatched && !loading;
 
   // ESC로 닫기
   useEffect(() => {
@@ -48,9 +93,39 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
   }, [onClose]);
 
   const handleCancel = () => onClose();
-  const handleConfirm = () => {
+
+  // ===== 변경하기 (목 API 순서: 검증 → 변경) =====
+  const handleConfirm = async () => {
     if (!canSubmit) return;
-    onClose();
+    setLoading(true);
+    setErrorTop("");
+    try {
+      // 1) (목) 기존 비밀번호 검증
+      const vRes = await verifyPasswordMock({ savedPassword, inputPassword: currentPw });
+      // (실제) const vRes = await verifyPassword({ inputPassword: currentPw });
+
+      if (!vRes.ok) {
+        setErrorTop(vRes.message || "기존 비밀번호 확인에 실패했습니다.");
+        return;
+      }
+
+      // 2) (목) 새 비밀번호로 변경
+      const uRes = await updatePasswordMock({ newPassword: newPw });
+      // (실제) const uRes = await updatePassword({ newPassword: newPw });
+
+      if (!uRes.ok) {
+        setErrorTop(uRes.message || "비밀번호 변경에 실패했습니다.");
+        return;
+      }
+
+      // 성공: 부모에 알리고 닫기
+      onChanged?.();
+      onClose();
+    } catch (e) {
+      setErrorTop("비밀번호 변경 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // === 여기서 핵심: 포털 + fixed 백드롭으로 부모 레이아웃에 영향 0 ===
@@ -62,6 +137,9 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
         <Dialog role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
           <Mascot src={mascot} alt="연필조아용" />
 
+          {/* 상단 에러 */}
+          {errorTop && <TopError role="alert">{errorTop}</TopError>}
+
           {/* 기존 비밀번호 */}
           <InputBox>
             <Input
@@ -69,6 +147,7 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
               placeholder="기존 비밀번호"
               value={currentPw}
               onChange={(e) => setCurrentPw(e.target.value)}
+              disabled={loading}
             />
           </InputBox>
           {showCurrentMsg && (
@@ -84,6 +163,7 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
               placeholder="변경할 비밀번호"
               value={newPw}
               onChange={(e) => setNewPw(e.target.value)}
+              disabled={loading}
             />
           </InputBox>
 
@@ -94,6 +174,7 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
               placeholder="비밀번호 확인"
               value={confirmPw}
               onChange={(e) => setConfirmPw(e.target.value)}
+              disabled={loading}
             />
           </InputBox>
           {showMatchMsg && (
@@ -104,7 +185,7 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
 
           {/* 버튼 */}
           <Buttons>
-            <Button type="button" data-variant="cancel" onClick={handleCancel}>
+            <Button type="button" data-variant="cancel" onClick={handleCancel} disabled={loading}>
               취소
             </Button>
             <Button
@@ -115,7 +196,7 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
               aria-disabled={!canSubmit}
               title={!canSubmit ? "기존 비밀번호/새 비밀번호 확인을 완료하세요" : "비밀번호 변경"}
             >
-              변경하기
+              {loading ? "변경중..." : "변경하기"}
             </Button>
           </Buttons>
         </Dialog>
@@ -151,7 +232,6 @@ const Dialog = styled.div`
   transform: translateY(-5%);  /* 중앙 기준에서 위로 5% 올림 */
 `;
 
-
 /* 마스코트 (모달 상단 밖으로 살짝) */
 const Mascot = styled.img`
   position: absolute;
@@ -162,6 +242,14 @@ const Mascot = styled.img`
   height: auto;
   pointer-events: none;
   user-select: none;
+`;
+
+const TopError = styled.p`
+  margin: 0 0 0.5rem 0.25rem;
+  color: #ff5656;
+  font-size: 0.9375rem;
+  font-family: "TJJoyofsingingM", sans-serif;
+  text-align: left;
 `;
 
 const InputBox = styled.div`
