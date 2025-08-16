@@ -1,5 +1,6 @@
 // src/pages/modals/namemodal.jsx
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";                         // [추가]
 import styled, { createGlobalStyle } from "styled-components";
 
 // ===== 폰트 & 이미지 =====
@@ -7,38 +8,23 @@ import JoyM from "../../fonts/TJJoyofsingingM_TTF.ttf"; // Medium
 import JoyB from "../../fonts/TJJoyofsingingB_TTF.ttf"; // Bold
 import mascot from "../../assets/연필조아용.png";        // 마스코트 이미지
 
-// ===== 전역 폰트 주입 =====
+// ===== 전역 폰트 주입 + 스크롤 잠금 =====
 const GlobalFonts = createGlobalStyle`
-  @font-face {
-    font-family: "TJJoyofsingingM";
-    src: url(${JoyM}) format("truetype");
-    font-weight: 500;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "TJJoyofsingingB";
-    src: url(${JoyB}) format("truetype");
-    font-weight: 700;
-    font-display: swap;
-  }
+  @font-face { font-family: "TJJoyofsingingM"; src: url(${JoyM}) format("truetype"); font-weight: 500; font-display: swap; }
+  @font-face { font-family: "TJJoyofsingingB"; src: url(${JoyB}) format("truetype"); font-weight: 700; font-display: swap; }
+`;
+const ScrollLock = createGlobalStyle`                   // [추가]
+  body { overflow: hidden; touch-action: none; }
 `;
 
 export default function NameModal({ onClose = () => {} }) {
   const [nickname, setNickname] = useState("");
   const [isNickAvailable, setIsNickAvailable] = useState(null);
 
-  // 회원가입과 동일한 로직
   const checkNickAvailability = () => {
     const v = nickname.trim();
-    if (v.length < 1) {
-      setIsNickAvailable(false);
-      return;
-    }
-    if (v === "test") {
-      setIsNickAvailable(false); // 이미 사용 중
-    } else {
-      setIsNickAvailable(true);  // 사용 가능
-    }
+    if (v.length < 1) return setIsNickAvailable(false);
+    setIsNickAvailable(v !== "test");
   };
 
   // ESC로 닫기
@@ -49,66 +35,78 @@ export default function NameModal({ onClose = () => {} }) {
   }, [onClose]);
 
   const handleCancel = () => onClose();
-
   const handleConfirm = () => {
-    if (isNickAvailable) {
-      // 사용 가능할 때만 닫기
-      onClose();
-    }
+    if (isNickAvailable) onClose();
   };
 
-  return (
+  // ===== 여기서부터 포털 렌더링 (디자인 그대로) =====
+  const modal = (
     <>
       <GlobalFonts />
-      <Wrap>
-        <Card>
-          <Inner style={{ ["--form-w"]: "17.25rem" }}>
-            <Mascot src={mascot} alt="연필조아용" />
-
-            <FormArea>
-              <IdRow>
-                <IdInput
-                  placeholder="닉네임"
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
-                />
-                <CheckButton type="button" onClick={checkNickAvailability}>
-                  중복<br />확인
-                </CheckButton>
-              </IdRow>
-
-              {isNickAvailable !== null && (
-                <Helper style={{ color: isNickAvailable ? "#00CA98" : "#FF5656" }}>
-                  {isNickAvailable
-                    ? "사용 가능한 닉네임입니다!"
-                    : "이미 사용 중입니다!"}
-                </Helper>
-              )}
-            </FormArea>
-
-            <Buttons>
-              <Button data-variant="cancel" onClick={handleCancel}>취소</Button>
-              <Button
-                data-variant="confirm"
-                onClick={handleConfirm}
-                disabled={isNickAvailable === false || isNickAvailable === null}
-              >
-                변경하기
-              </Button>
-            </Buttons>
-          </Inner>
-        </Card>
-      </Wrap>
+      <ScrollLock />
+      <Backdrop onClick={onClose}>                       {/* [추가] */}
+        <div onClick={(e) => e.stopPropagation()}>       {/* 내부 클릭 시 닫힘 방지 */}
+          <Wrap>
+            <Card>
+              <Inner style={{ ["--form-w"]: "17.25rem" }}>
+                <Mascot src={mascot} alt="연필조아용" />
+                <FormArea>
+                  <IdRow>
+                    <IdInput
+                      placeholder="닉네임"
+                      value={nickname}
+                      onChange={(e) => setNickname(e.target.value)}
+                    />
+                    <CheckButton type="button" onClick={checkNickAvailability}>
+                      중복<br />확인
+                    </CheckButton>
+                  </IdRow>
+                  {isNickAvailable !== null && (
+                    <Helper style={{ color: isNickAvailable ? "#00CA98" : "#FF5656" }}>
+                      {isNickAvailable ? "사용 가능한 닉네임입니다!" : "이미 사용 중입니다!"}
+                    </Helper>
+                  )}
+                </FormArea>
+                <Buttons>
+                  <Button data-variant="cancel" onClick={handleCancel}>취소</Button>
+                  <Button
+                    data-variant="confirm"
+                    onClick={handleConfirm}
+                    disabled={isNickAvailable === false || isNickAvailable === null}
+                  >
+                    변경하기
+                  </Button>
+                </Buttons>
+              </Inner>
+            </Card>
+          </Wrap>
+        </div>
+      </Backdrop>
     </>
   );
+
+  return ReactDOM.createPortal(modal, document.body);   // [추가]
 }
 
-/* ===== styled-components ===== */
+/* ===== [추가] 화면 전체 덮는 배경 (디자인 영향 없음) ===== */
+const Backdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+/* ===== 아래부터는 “기존 그대로” ===== */
 const Wrap = styled.div`
   width: 18.75rem;
-  margin: 6.875rem auto 0;
+  margin: 0 auto;               /* ← 위 여백 제거 (아래로 처지는 원인) */
   overflow: visible;
+  transform: translateY(-5%);   /* ← 아이디/로그아웃 모달과 동일 보정 */
 `;
+
 
 const Card = styled.div`
   position: relative;
@@ -117,7 +115,6 @@ const Card = styled.div`
   box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.15);
   width: 18.75rem; /* 300px */
 `;
-
 
 const Inner = styled.div`
   --form-w: 17.25rem;
@@ -164,7 +161,6 @@ const BaseInput = styled.input`
   padding-left: var(--pad-x);
   outline: none;
   font-family: "TJJoyofsingingM", sans-serif;
-
   &::placeholder { font-family: "TJJoyofsingingM", sans-serif; }
 `;
 
@@ -214,18 +210,7 @@ const Button = styled.button`
   font-weight: 700;
   cursor: pointer;
 
-  &[data-variant="cancel"] {
-    background: #e8e8e8;
-    color: #32885d;
-  }
-  &[data-variant="confirm"] {
-    background: #32885d;
-    color: #fff;
-  }
-
-  &:disabled {
-    background: #ccc;
-    color: #666;
-    cursor: not-allowed;
-  }
+  &[data-variant="cancel"] { background: #e8e8e8; color: #32885d; }
+  &[data-variant="confirm"] { background: #32885d; color: #fff; }
+  &:disabled { background: #ccc; color: #666; cursor: not-allowed; }
 `;
