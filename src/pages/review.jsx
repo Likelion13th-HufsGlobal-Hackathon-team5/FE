@@ -66,9 +66,7 @@ display: flex;
   gap: 0.9375rem;
   overflow-y: auto;   
   padding: 0.5rem 0.8rem;
-   /* 리스트 영역에서만 스크롤 */
-   max-height: 40rem;   /* 컨테이너 안에서 스크롤 가능한 높이 지정 */
-  overflow-y: auto;
+  max-height: 40rem;   
 `;
 
 const ReviewItem = styled.div`
