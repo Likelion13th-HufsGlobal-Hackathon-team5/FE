@@ -26,6 +26,7 @@ const Header = styled.h2`
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    align-self: flex-start;
     border-radius: 0 2.5rem 2.5rem 0;
     background: #66CE94;
     color: #FFF;
@@ -34,6 +35,7 @@ const Header = styled.h2`
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+    margin-left: 0.26rem;
 `;
 
 const CalendarWrap = styled.div`
@@ -45,11 +47,15 @@ const CalendarWrap = styled.div`
     border-radius: 1rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     padding: 1rem;
+    width: 21.6875rem;
+    justify-content: center;
   }
 
   /* 날짜 칸 기본 스타일 */
   .react-calendar__tile {
-    padding: 0.5rem 0;
+    width: 2.7rem;       
+    height: 2.8rem;       
+    font-size: 1.1rem; 
     text-align: center;
     border-radius: 50%;
   }
@@ -136,6 +142,7 @@ const HeaderTwo = styled.div`
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+    margin-right: 0.26rem;
 `
 
 const ListContainer = styled.div`

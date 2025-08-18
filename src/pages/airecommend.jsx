@@ -10,19 +10,19 @@ export default function AiRecommendation() {
   const cards = [
     {
       title: "힐링할 수 있는 축제",
-      subtitle: "모험을 풍선 축제 등 3개",
+      subtitle: "모현읍 풍선 축제 등 3개",
       name: "풍선 축제",
       date: "2025.07.30 ~ 08.20",
     },
     {
       title: "혼자서도 즐길 수 있는 축제",
-      subtitle: "모험을 풍선 축제 등 3개",
+      subtitle: "모현읍 풍선 축제 등 3개",
       name: "풍선 축제",
       date: "2025.07.30 ~ 08.20",
     },
     {
       title: "조용히 즐길 수 있는 축제",
-      subtitle: "모험을 풍선 축제 등 3개",
+      subtitle: "모현읍 풍선 축제 등 3개",
       name: "풍선 축제",
       date: "2025.07.30 ~ 08.20",
     },
@@ -36,6 +36,8 @@ export default function AiRecommendation() {
     slidesToScroll: 1,
     arrows: false,
     centerMode: false,
+    draggable: true,      
+    swipeToSlide: true, 
     responsive: [
       {
         breakpoint: 768, 
@@ -98,20 +100,23 @@ const Header = styled.h2`
   box-sizing: border-box;
   flex-direction: column;
   justify-content: center;
-  font-family: "DNFBitBit";
   align-items: center;
   padding: 0.38rem 2.38rem 0.38rem 2.38rem;
   border-radius: 0 2.5rem 2.5rem 0;
   background: #66CE94;
-  color: #FFFF;
+  color: #FFF;
+  font-family: "DNF Bit Bit TTF";
+  font-size: 1.75rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
 `;
 
 const CardContainer = styled.div`
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
   padding : 0rem 0.63rem 1.25rem 0.63rem;
-  height: calc(100vh - 2rem); 
+  flex: 1;
 
 
 ::-webkit-scrollbar {
@@ -133,23 +138,29 @@ const Card = styled.div`
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
 
   @media (min-width: 768px) {
-    padding: 1rem;
+    padding:0.62rem;
+    padding-bottom: 0;
   }
 `;
 
 const Title = styled.h3`
   font-size: clamp(0.9rem, 2vw, 1.1rem);
-  font-family: "TJJoyofsingingB";
+  font-family: "TJ Joy of singing TTF";
+  font-size: 0.9375rem;
+font-style: normal;
+font-weight: 500;
+line-height: normal;
+color: #3F3F3F;
   margin: 0;
 `;
 
 const Subtitle = styled.p`
   color: #3F3F3F;
-  font-size: 0.8125rem;
-  font-style: normal;
-  font-weight: 300;
-  line-height: normal;
-  font-family: "TJJoyofsingingB";
+  font-family: "TJ Joy of singing TTF";
+font-size: 0.8125rem;
+font-style: normal;
+font-weight: 300;
+line-height: normal;
   margin: 0.2rem 0 0.6rem 0;
 `;
 

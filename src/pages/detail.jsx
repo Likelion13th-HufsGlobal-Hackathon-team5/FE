@@ -5,12 +5,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 24.5625rem;
-  height: 49.25rem; 
+  height: 53.25rem; 
   box-sizing: border-box;
   padding: 7.69rem -0.1rem 4rem 0.7rem;
   background: #f7f7f7;
@@ -33,6 +32,7 @@ const DetailContainer = styled.div`
     border-radius: 1.25rem;
     background: #FFF;
     box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.25);
+    margin-top: 2rem;
 `
 
 const TitleContainer = styled.div`
@@ -44,7 +44,7 @@ const DetailTitle = styled.h1`
     margin : 0;
     color: #35C16D;
     text-align: center;
-    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-width: 0.1px;
     -webkit-text-stroke-color: #455445;
     font-family: "TJJoyofsingingB";
     font-size: 3rem;
@@ -60,13 +60,14 @@ const Star = styled(FaStar)`
   border-radius: 0.1rem;
   fill: ${({ $active }) => ($active ? "#FFEB34" : "#ccc")};
   margin-left: 5.31rem;
+  cursor: pointer;
 `;
 
 const DayText = styled.h3`
     margin-top: 0.31rem;
     margin: 0;
     color: #111;
-    font-family: "TJJoyofsingingB";
+    font-family: "TJ Joy of singing TTF";
     font-size: 0.9375rem;
     font-style: normal;
     font-weight: 700;
@@ -77,12 +78,12 @@ const DayText = styled.h3`
 const RegText = styled.h3`
     margin : 0;
     color: #111;
-    font-family: "TJJoyofsingingB";
+    margin-left: 0.65rem;
+    font-family: "TJ Joy of singing TTF";
     font-size: 0.6875rem;
     font-style: normal;
     font-weight: 700;
-    line-height: 140%;
-    margin-left: 0.65rem;
+    line-height: 140%; /* 0.9625rem */
 `
 const Img = styled.div`
     width: 20.5rem;
@@ -95,7 +96,7 @@ const Img = styled.div`
 const IntroTitle = styled.h3`
     margin: 0;
     color: #000;
-    font-family: "TJJoyofsingingB";
+    font-family: "TJ Joy of singing TTF";
     font-size: 1.25rem;
     font-style: normal;
     font-weight: 700;
@@ -138,7 +139,7 @@ const DetailBtn = styled.div`
     background: #32885D;
     color: #FFFF;
     font-family: "TJJoyofsingingB";
-
+    cursor: pointer;
 `
 
 
@@ -166,6 +167,7 @@ const BackBtn = styled.div`
     justify-content: center;
     align-items: center;
     border-radius: 6.25rem;
+    cursor: pointer;
 `
 const Back = styled(FaArrowLeft)`
     fill: #FFFF;
@@ -185,7 +187,7 @@ export default function Detail(){
     return(
         <Container>
             <BackConatiner>
-                <BackBtn>
+                <BackBtn onClick={() => Navigate(-1)}>
                     <Back/>
                 </BackBtn>
             </BackConatiner>

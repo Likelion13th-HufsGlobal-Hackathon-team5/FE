@@ -210,7 +210,7 @@ export default function Signin() {
         {/* 출생연도 */}
         <div>
           <InputBox
-            placeholder="출생연도"
+            placeholder="출생 연도"
             inputMode="numeric"
             maxLength={4}
             value={birthyear}
@@ -365,8 +365,6 @@ const CheckButton = styled.button`
   text-align: center;
   font-family: 'JoyM', sans-serif;
   cursor: pointer;
-
-  &:disabled { opacity: .7; cursor: default; }
 `;
 
 const SignUpButton = styled.button`
@@ -384,9 +382,9 @@ const SignUpButton = styled.button`
   justify-content: center;
   font-family: 'DNFBitBitTTF', sans-serif;
   box-shadow: 0.125rem 0.25rem 0.4375rem rgba(0, 0, 0, 0.3);
+  cursor: pointer;
 
   &:disabled {
-    pointer-events: none;
     opacity: 1;
   }
 `;
