@@ -45,8 +45,8 @@ export default function Login() {
 
         {/* 입력 */}
         <Form>
-          <InputBox placeholder="아이디를 입력해주세요." />
-          <InputBox type="password" placeholder="비밀번호를 입력해주세요." />
+          <InputBox placeholder="아이디를 입력해 주세요." />
+          <InputBox type="password" placeholder="비밀번호를 입력해 주세요." />
         </Form>
 
         {/* 버튼 */}
@@ -62,7 +62,7 @@ export default function Login() {
         <MiniCloud src={miniCloud} alt="미니 구름" />
 
         {/* 말풍선 */}
-        <SpeechBubble>{`용인 축제\n알려줄게용!`}</SpeechBubble>
+        <SpeechBubble>{`용인 축제\n알려 줄게용!`}</SpeechBubble>
 
         {/* 캐릭터 */}
         <Yong src={yong} alt="용" />
