@@ -1,11 +1,11 @@
+// src/pages/signin.jsx
 import React, { useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import bgImage from "../assets/signup-bg.png";
 
 /* === 이미지 import (뒤로가기 아이콘) === */
-import backIcon from "../assets/back.svg";   
- // 🔙 뒤로가기 아이콘 (assets 폴더에 있는 파일명 맞게 변경)
+import backIcon from "../assets/back.svg";
 
 /* === 폰트 파일 import === */
 import DNFBitBit from "../fonts/DNFBitBitTTF.ttf";
@@ -20,7 +20,6 @@ const FontStyles = createGlobalStyle`
     font-style: normal;
     font-display: swap;
   }
-  
   @font-face {
     font-family: 'JoyM';
     src: url(${JoyM}) format('truetype');
@@ -30,44 +29,120 @@ const FontStyles = createGlobalStyle`
   }
 `;
 
+/* =========================================
+ * ① 목데이터(가짜 API) — 개발용
+ *    실제 연동 시 아래 함수들을 axios 호출로 교체
+ * ========================================= */
+
+// (목) 닉네임 중복확인: "testnick", "admin"은 사용 불가
+async function checkNicknameMock(nickname) {
+  await new Promise((r) => setTimeout(r, 350)); // 지연 흉내
+  const banned = ["testnick", "admin"];
+  const ok = !!nickname && !banned.includes(nickname.trim().toLowerCase());
+  return { ok, message: ok ? "사용 가능한 닉네임입니다!" : "이미 사용 중입니다!" };
+}
+
+// (목) 아이디 중복확인: "test", "user1"은 사용 불가
+async function checkIdMock(id) {
+  await new Promise((r) => setTimeout(r, 350));
+  const taken = ["test", "user1"];
+  const ok = !!id && !taken.includes(id.trim().toLowerCase());
+  return { ok, message: ok ? "사용 가능한 아이디입니다!" : "이미 사용 중입니다!" };
+}
+
+// (목) 회원가입: 기본 검증 + 성공 시 토큰 반환
+async function signupMock({ nickname, id, password, birthyear }) {
+  await new Promise((r) => setTimeout(r, 500));
+  if (!nickname?.trim() || !id?.trim() || !password?.trim()) {
+    return { ok: false, message: "모든 필드를 입력해 주세요." };
+  }
+  if (["testnick", "admin"].includes(nickname.toLowerCase())) {
+    return { ok: false, message: "이미 사용 중인 닉네임입니다." };
+  }
+  if (["test", "user1"].includes(id.toLowerCase())) {
+    return { ok: false, message: "이미 사용 중인 아이디입니다." };
+  }
+  // 비번 8자 조건 없음! (요청사항)
+  return { ok: true, token: "MOCK_TOKEN_123", user: { id, nickname, birthyear } };
+}
+
+/* =========================================
+ * ② 실제 연동 시 교체할 포인트 (참고)
+ * -----------------------------------------
+ * import { api } from "../lib/api";
+ *
+ * async function checkNickname(name) {
+ *   const { data } = await api.get("/auth/check-nickname", { params: { name }});
+ *   return { ok: data.ok && data.data.available, message: data.data.available ? "사용 가능한 닉네임입니다!" : "이미 사용 중입니다!" };
+ * }
+ *
+ * async function checkUserId(id) {
+ *   const { data } = await api.get("/auth/check-id", { params: { id }});
+ *   return { ok: data.ok && data.data.available, message: data.data.available ? "사용 가능한 아이디입니다!" : "이미 사용 중입니다!" };
+ * }
+ *
+ * async function signupReal({ nickname, id, password, birthyear }) {
+ *   const { data } = await api.post("/auth/signup", { nickname, userId:id, password, birthyear });
+ *   return { ok: data.ok, token: data.data?.token, user: data.data?.user, message: data.message };
+ * }
+ * ========================================= */
+
 export default function Signin() {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const [nickname, setNickname] = useState("");
   const [isNickAvailable, setIsNickAvailable] = useState(null);
+  const [nickLoading, setNickLoading] = useState(false);
 
   const [id, setId] = useState("");
   const [isIdAvailable, setIsIdAvailable] = useState(null);
+  const [idLoading, setIdLoading] = useState(false);
 
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [isPasswordMatch, setIsPasswordMatch] = useState(null);
 
-  // 닉네임 중복 확인
-  const checkNickAvailability = () => {
-    if (nickname === "testnick") {
+  const [birthyear, setBirthyear] = useState("");
+  const [error, setError] = useState("");
+  const [signupLoading, setSignupLoading] = useState(false);
+
+  // ===== 닉네임 중복 확인(목) =====
+  const checkNickAvailability = async () => {
+    setError("");
+    setNickLoading(true);
+    try {
+      const res = await checkNicknameMock(nickname);
+      // (실제) const res = await checkNickname(nickname);
+      setIsNickAvailable(res.ok);
+    } catch {
       setIsNickAvailable(false);
-    } else {
-      setIsNickAvailable(true);
+    } finally {
+      setNickLoading(false);
     }
   };
 
-  // 아이디 중복 확인
-  const checkIdAvailability = () => {
-    if (id === "test") {
+  // ===== 아이디 중복 확인(목) =====
+  const checkIdAvailability = async () => {
+    setError("");
+    setIdLoading(true);
+    try {
+      const res = await checkIdMock(id);
+      // (실제) const res = await checkUserId(id);
+      setIsIdAvailable(res.ok);
+    } catch {
       setIsIdAvailable(false);
-    } else {
-      setIsIdAvailable(true);
+    } finally {
+      setIdLoading(false);
     }
   };
 
-  // 비밀번호 확인
+  // 비밀번호 확인 (※ 8자 조건 제거: 길이 > 0 이고 일치하면 OK)
   const handlePasswordConfirm = (value) => {
     setPasswordConfirm(value);
-    setIsPasswordMatch(value === password && value.length > 0);
+    setIsPasswordMatch(value.length > 0 && value === password);
   };
 
-  // ✅ 모든 조건 충족 여부
+  // ✅ 모든 조건 충족 여부 (8자 조건 없이!)
   const isFormValid =
     nickname.trim().length > 0 &&
     id.trim().length > 0 &&
@@ -78,9 +153,25 @@ export default function Signin() {
     isIdAvailable === true;
 
   // ✅ 가입하기 클릭
-  const handleSignUp = () => {
-    if (!isFormValid) return;
-    navigate("/main");
+  const handleSignUp = async () => {
+    if (!isFormValid || signupLoading) return;
+    setError("");
+    setSignupLoading(true);
+    try {
+      const res = await signupMock({ nickname, id, password, birthyear });
+      // (실제) const res = await signupReal({ nickname, id, password, birthyear });
+
+      if (!res.ok) {
+        setError(res.message || "회원가입에 실패했어요.");
+        return;
+      }
+      if (res.token) localStorage.setItem("accessToken", res.token);
+      navigate("/main");
+    } catch {
+      setError("회원가입 중 오류가 발생했어요.");
+    } finally {
+      setSignupLoading(false);
+    }
   };
 
   return (
@@ -105,8 +196,8 @@ export default function Signin() {
                 setIsNickAvailable(null);
               }}
             />
-            <CheckButton onClick={checkNickAvailability}>
-              중복<br />확인
+            <CheckButton onClick={checkNickAvailability} disabled={nickLoading}>
+              {nickLoading ? "확인중" : <>중복<br />확인</>}
             </CheckButton>
           </IdRow>
           {isNickAvailable !== null && (
@@ -118,7 +209,13 @@ export default function Signin() {
 
         {/* 출생연도 */}
         <div>
-          <InputBox placeholder="출생 연도" inputMode="numeric" maxLength={4} />
+          <InputBox
+            placeholder="출생 연도"
+            inputMode="numeric"
+            maxLength={4}
+            value={birthyear}
+            onChange={(e) => setBirthyear(e.target.value.replace(/\D/g, ""))}
+          />
           <Helper>예) 2004</Helper>
         </div>
 
@@ -133,8 +230,8 @@ export default function Signin() {
                 setIsIdAvailable(null);
               }}
             />
-            <CheckButton onClick={checkIdAvailability}>
-              중복<br />확인
+            <CheckButton onClick={checkIdAvailability} disabled={idLoading}>
+              {idLoading ? "확인중" : <>중복<br />확인</>}
             </CheckButton>
           </IdRow>
           {isIdAvailable !== null && (
@@ -172,13 +269,17 @@ export default function Signin() {
           )}
         </div>
 
+        {/* 에러 메시지 */}
+        {error && <Error>{error}</Error>}
+
         {/* 가입하기 버튼 */}
         <SignUpButton
           type="button"
           onClick={handleSignUp}
-          disabled={!isFormValid}
+          disabled={!isFormValid || signupLoading}
+          aria-busy={signupLoading}
         >
-          가입하기
+          {signupLoading ? "가입 중..." : "가입하기"}
         </SignUpButton>
       </Form>
     </Container>
@@ -211,7 +312,7 @@ const Form = styled.div`
   display: flex;
   align-items: center;
   flex-direction: column;
-  gap: 1.875rem;
+  gap: 1.875rem; /* 원래 디자인 그대로 */
 `;
 
 const InputBox = styled.input`
@@ -294,11 +395,20 @@ const BackButton = styled.button`
   border: none;
   cursor: pointer;
   align-self: flex-start;
-  margin-left: 5px;        /* 오른쪽으로 10px 밀기 (원하는 값으로 조정) */
-  margin-top: -5px;   
+  margin-left: 5px;
+  margin-top: -5px;
 
   img {
-    width: 40px;  /* 크기 40x40 */
+    width: 40px;
     height: 40px;
   }
+`;
+
+const Error = styled.p`
+  width: 17.25rem;
+  margin: 0.25rem 0 0;
+  color: #ff5656;
+  font-size: 0.9375rem;
+  font-family: 'JoyM', sans-serif;
+  text-align: left;
 `;
