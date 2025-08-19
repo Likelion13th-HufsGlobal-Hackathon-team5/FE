@@ -1,3 +1,4 @@
+import axiosInstance from "../../AxiosInstance";
 // src/pages/modals/logoutmodal.jsx
 import React, { useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
@@ -67,32 +68,47 @@ export default function LogoutModal({ onClose }) {
 
   const handleCancel = () => onClose?.();
 
-  const handleLogout = async () => {
-    setErrorTop("");
-    setLoading(true);
-    try {
-      // (목) 호출
-      const res = await logoutMock();
+  // const handleLogout = async () => {
+  //   setErrorTop("");
+  //   setLoading(true);
+  //   try {
+  //     // (목) 호출
+  //     const res = await logoutMock();
 
-      // (실제) 호출 예:
-      // const res = await logoutReal();
+  //     // (실제) 호출 예:
+  //     // const res = await logoutReal();
 
-      if (!res.ok) {
-        setErrorTop(res.message || "로그아웃에 실패했어요.");
-        return;
-      }
+  //     if (!res.ok) {
+  //       setErrorTop(res.message || "로그아웃에 실패했어요.");
+  //       return;
+  //     }
 
-      // ✅ 토큰/세션 정리
-      localStorage.removeItem("accessToken");
+  //     // ✅ 토큰/세션 정리
+  //     localStorage.removeItem("accessToken");
 
-      onClose?.();        // 먼저 모달 닫고
-      navigate("/login"); // 로그인 페이지로 이동 (원하는 경로로 변경 가능)
-    } catch (e) {
-      setErrorTop("로그아웃 중 오류가 발생했어요.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     onClose?.();        // 먼저 모달 닫고
+  //     navigate("/login"); // 로그인 페이지로 이동 (원하는 경로로 변경 가능)
+  //   } catch (e) {
+  //     setErrorTop("로그아웃 중 오류가 발생했어요.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+const handleLogout = async () => {
+  try {
+    const response = await axiosInstance.post("/auth/logout");
+    console.log("로그아웃 성공:", response.data);
+    localStorage.removeItem("accessToken");
+    navigate("/login");
+
+    return response.data;
+  } catch (error) {
+    console.error("오류:", error.response?.data || error.message);
+    throw error; 
+  }
+};
+
 
   const modal = (
     <>

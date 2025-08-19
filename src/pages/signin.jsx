@@ -1,3 +1,4 @@
+import axios from "axios";
 // src/pages/signin.jsx
 import React, { useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
@@ -106,35 +107,107 @@ export default function Signin() {
   const [error, setError] = useState("");
   const [signupLoading, setSignupLoading] = useState(false);
 
-  // ===== 닉네임 중복 확인(목) =====
-  const checkNickAvailability = async () => {
-    setError("");
-    setNickLoading(true);
-    try {
-      const res = await checkNicknameMock(nickname);
-      // (실제) const res = await checkNickname(nickname);
-      setIsNickAvailable(res.ok);
-    } catch {
-      setIsNickAvailable(false);
-    } finally {
-      setNickLoading(false);
-    }
-  };
+  // 토큰 반환값 //
+  const [IdToken , setIdtoken] = useState("");
+  const [NameToken , setNametoken] = useState("");
+  
 
-  // ===== 아이디 중복 확인(목) =====
-  const checkIdAvailability = async () => {
-    setError("");
-    setIdLoading(true);
-    try {
-      const res = await checkIdMock(id);
-      // (실제) const res = await checkUserId(id);
-      setIsIdAvailable(res.ok);
-    } catch {
-      setIsIdAvailable(false);
-    } finally {
-      setIdLoading(false);
-    }
-  };
+  // // ===== 닉네임 중복 확인(목) =====
+  // const checkNickAvailability = async () => {
+  //   setError("");
+  //   setNickLoading(true);
+  //   try {
+  //     const res = await checkNicknameMock(nickname);
+  //     // (실제) const res = await checkNickname(nickname);
+  //     setIsNickAvailable(res.ok);
+  //   } catch {
+  //     setIsNickAvailable(false);
+  //   } finally {
+  //     setNickLoading(false);
+  //   }
+  // };
+
+  // // ===== 아이디 중복 확인(목) =====
+  // const checkIdAvailability = async () => {
+  //   setError("");
+  //   setIdLoading(true);
+  //   try {
+  //     const res = await checkIdMock(id);
+  //     // (실제) const res = await checkUserId(id);
+  //     setIsIdAvailable(res.ok);
+  //   } catch {
+  //     setIsIdAvailable(false);
+  //   } finally {
+  //     setIdLoading(false);
+  //   }
+  // };
+
+  const mockdata = {
+        userId : id,
+        password : password,
+        passwordConfirm : password,
+        nickname : nickname,
+        birthYear : birthyear,
+        idCheckToken : IdToken,
+        nickCheckToken : NameToken
+      }
+
+const handleCheckId = async () => {
+  setIdLoading(true);
+  try {
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/id-check`, { userId: id });
+    setIdtoken(response.data.data.token);
+    setIsIdAvailable(true); 
+    console.log(response.data);
+  } catch (err) {
+    console.error(err);
+    setIsIdAvailable(false);
+  } finally {
+    setIdLoading(false);
+  }
+};
+
+ const handleCheckName = async () => {
+  try {
+    const response = await axios.post(
+      `${process.env.REACT_APP_API_URL}/auth/nick-check`,  
+      { nickname : nickname }
+    );
+
+    setIsNickAvailable(true);
+    console.log(response.data);  
+    setNametoken(response.data.data.token);
+  } catch (err) {
+    setIsNickAvailable(false);
+    console.error(err);
+    console.log(nickname);
+    
+  }
+};
+
+ const handleSignIn = async () => {
+  try {
+    const response = await axios.post(
+      `${process.env.REACT_APP_API_URL}/auth/signup`,  
+      {
+        userId : id,
+        password : password,
+        passwordConfirm : password,
+        nickname : nickname,
+        birthYear : birthyear,
+        idCheckToken : IdToken,
+        nickCheckToken : NameToken
+      }
+    );
+    
+    console.log(response.data);  
+  } catch (err) {
+    console.log(mockdata);
+    console.error(err);
+    
+  }
+};
+
 
   // 비밀번호 확인 (※ 8자 조건 제거: 길이 > 0 이고 일치하면 OK)
   const handlePasswordConfirm = (value) => {
@@ -153,26 +226,26 @@ export default function Signin() {
     isIdAvailable === true;
 
   // ✅ 가입하기 클릭
-  const handleSignUp = async () => {
-    if (!isFormValid || signupLoading) return;
-    setError("");
-    setSignupLoading(true);
-    try {
-      const res = await signupMock({ nickname, id, password, birthyear });
-      // (실제) const res = await signupReal({ nickname, id, password, birthyear });
+  // const handleSignUp = async () => {
+  //   if (!isFormValid || signupLoading) return;
+  //   setError("");
+  //   setSignupLoading(true);
+  //   try {
+  //     const res = await signupMock({ nickname, id, password, birthyear });
+  //     // (실제) const res = await signupReal({ nickname, id, password, birthyear });
 
-      if (!res.ok) {
-        setError(res.message || "회원가입에 실패했어요.");
-        return;
-      }
-      if (res.token) localStorage.setItem("accessToken", res.token);
-      navigate("/main");
-    } catch {
-      setError("회원가입 중 오류가 발생했어요.");
-    } finally {
-      setSignupLoading(false);
-    }
-  };
+  //     if (!res.ok) {
+  //       setError(res.message || "회원가입에 실패했어요.");
+  //       return;
+  //     }
+  //     if (res.token) localStorage.setItem("accessToken", res.token);
+  //     navigate("/main");
+  //   } catch {
+  //     setError("회원가입 중 오류가 발생했어요.");
+  //   } finally {
+  //     setSignupLoading(false);
+  //   }
+  // };
 
   return (
     <Container>
@@ -196,7 +269,7 @@ export default function Signin() {
                 setIsNickAvailable(null);
               }}
             />
-            <CheckButton onClick={checkNickAvailability} disabled={nickLoading}>
+            <CheckButton onClick={handleCheckName}  disabled={nickLoading}>
               {nickLoading ? "확인중" : <>중복<br />확인</>}
             </CheckButton>
           </IdRow>
@@ -230,7 +303,7 @@ export default function Signin() {
                 setIsIdAvailable(null);
               }}
             />
-            <CheckButton onClick={checkIdAvailability} disabled={idLoading}>
+            <CheckButton type="button" onClick={handleCheckId} disabled={idLoading}>
               {idLoading ? "확인중" : <>중복<br />확인</>}
             </CheckButton>
           </IdRow>
@@ -275,8 +348,8 @@ export default function Signin() {
         {/* 가입하기 버튼 */}
         <SignUpButton
           type="button"
-          onClick={handleSignUp}
-          disabled={!isFormValid || signupLoading}
+          onClick={handleSignIn}
+          // disabled={!isFormValid || signupLoading}
           aria-busy={signupLoading}
         >
           {signupLoading ? "가입 중..." : "가입하기"}

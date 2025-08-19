@@ -6,6 +6,7 @@ import bg from "../assets/review_bg.png";
 import backicon from "../assets/back_blue.svg";
 import { useNavigate } from "react-router-dom";
 
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -129,6 +130,7 @@ cursor: pointer;
 const ReviewPage = () => {
   const [openIndexes, setOpenIndexes] = useState([]);
   const navigate = useNavigate();
+
 
   const reviews = [
     { title: "정말 재미있었어요!",
