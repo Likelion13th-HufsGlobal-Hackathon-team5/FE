@@ -1,3 +1,5 @@
+import axios from "axios";
+import { useState } from "react";
 // src/pages/login.jsx
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
@@ -34,6 +36,32 @@ const FontStyles = createGlobalStyle`
 
 export default function Login() {
   const nav = useNavigate();
+  const [Id, setId] = useState("");
+  const [password, setPassword] = useState("");
+  const [Token , setToken] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
+        userId: Id,
+        password: password,
+      });
+
+      const token = response.data.data.accessToken;
+      localStorage.setItem("accessToken", token);
+      console.log("로그인 성공:", response.data);
+      console.log("토큰 확인:", token);
+
+      setToken(token);
+      nav("/main");
+    } catch (error) {
+      console.log(Id);
+      console.log(password);
+      console.error("로그인 실패:", error.response?.data || error.message);
+      alert("아이디 또는 비밀번호가 올바르지 않습니다.");
+    }
+  };
+
 
   return (
     <Stage>
@@ -45,13 +73,23 @@ export default function Login() {
 
         {/* 입력 */}
         <Form>
-          <InputBox placeholder="아이디를 입력해 주세요." />
-          <InputBox type="password" placeholder="비밀번호를 입력해 주세요." />
+          <InputBox
+            placeholder="아이디를 입력해 주세요."
+            value={Id}
+            onChange={(e) => setId(e.target.value)}
+          />
+          <InputBox
+            type="password"
+            placeholder="비밀번호를 입력해 주세요."
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </Form>
 
-        {/* 버튼 */}
         <Buttons>
-          <LoginBtn type="button">로그인</LoginBtn>
+          <LoginBtn type="button" onClick={handleLogin}>
+            로그인
+          </LoginBtn>
           <SignupBtn type="button" onClick={() => nav("/signin")}>
             회원가입
           </SignupBtn>
