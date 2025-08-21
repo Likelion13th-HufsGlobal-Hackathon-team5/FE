@@ -266,21 +266,48 @@ export default function Main(){
   };
 
 
+  const handleCalendar = async (year, month, date) => {
+  try {
+    const response = await axiosInstance.get(`/calendar`, {
+      params: {
+        year: Number(year),
+        month: Number(month),
+        date: Number(date),
+      }
+    });
+    console.log("캘린더 데이터 불러오기 성공:", response.data);
+
+    return response.data;
+  } catch (error) {
+    console.log(year, month, date);
+    
+    console.error("오류:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+
     return(
         <Container>
             <Header>축제 달력</Header>
             <CalendarWrap>
                 <Calendar
-                onChange={setValue}
-                value={value}
-                tileClassName={getTileClassName}
-                tileContent={({ date, view }) =>
+                  onChange={(newDate) => {
+                    setValue(newDate);
+                    const year = newDate.getFullYear();
+                    const month = newDate.getMonth() + 1; // JS 월은 0부터 시작
+                    const date = newDate.getDate();
+                    handleCalendar(year, month, date);
+                  }}
+                  value={value}
+                  tileClassName={getTileClassName}
+                  tileContent={({ date, view }) =>
                     view === "month" ? (
-                    <div style={{ fontSize: "1rem", fontWeight: 500 }}>
-                        {date.getDate()} {/* 앞자리 0 없이 날짜 */}
-                    </div>
+                      <div style={{ fontSize: "1rem", fontWeight: 500 }}>
+                        {date.getDate()}
+                      </div>
                     ) : null
-                }
+                  }
                 />
             </CalendarWrap>
             <HeaderContainer>
