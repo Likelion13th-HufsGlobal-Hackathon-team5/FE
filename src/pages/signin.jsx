@@ -152,61 +152,101 @@ export default function Signin() {
         nickCheckToken : NameToken
       }
 
+// ============================
+// 토큰 반환 + 회원가입 통합
+// ============================
+
+// 닉네임 중복 확인
+const handleCheckName = async () => {
+  setNickLoading(true);
+  setError("");
+  try {
+    const response = await axios.post(
+      `${process.env.REACT_APP_API_URL}/auth/nick-check`,
+      { nickname }
+    );
+    const { success, data, message } = response.data;
+
+    if (success && data?.available) {
+      setIsNickAvailable(true);
+      setNametoken(data.token);
+    } else {
+      setIsNickAvailable(false);
+      setError(message || "닉네임 중복 확인 실패");
+    }
+    return data?.token || null;
+  } catch (err) {
+    console.error(err);
+    setIsNickAvailable(false);
+    setError("닉네임 중복 확인 중 오류가 발생했습니다.");
+    return null;
+  } finally {
+    setNickLoading(false);
+  }
+};
+
+// 아이디 중복 확인
 const handleCheckId = async () => {
   setIdLoading(true);
+  setError("");
   try {
-    const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/id-check`, { userId: id });
-    setIdtoken(response.data.data.token);
-    setIsIdAvailable(true); 
-    console.log(response.data);
+    const response = await axios.post(
+      `${process.env.REACT_APP_API_URL}/auth/id-check`,
+      { userId: id }
+    );
+    const { success, data, message } = response.data;
+
+    if (success && data?.available) {
+      setIsIdAvailable(true);
+      setIdtoken(data.token);
+    } else {
+      setIsIdAvailable(false);
+      setError(message || "아이디 중복 확인 실패");
+    }
+    return data?.token || null;
   } catch (err) {
     console.error(err);
     setIsIdAvailable(false);
+    setError("아이디 중복 확인 중 오류가 발생했습니다.");
+    return null;
   } finally {
     setIdLoading(false);
   }
 };
 
- const handleCheckName = async () => {
-  try {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/auth/nick-check`,  
-      { nickname : nickname }
-    );
 
-    setIsNickAvailable(true);
-    console.log(response.data);  
-    setNametoken(response.data.data.token);
+const handleSignIn = async () => {
+  if (!nickname || !id || !password || !birthyear) {
+    setError("모든 필드를 입력해 주세요.");
+    return;
+  }
+
+  // 닉네임/아이디 토큰 가져오기
+  const nickToken = await handleCheckName();
+  const idToken = await handleCheckId();
+
+  if (!nickToken || !idToken) {
+    setError("닉네임 또는 아이디 중복 확인이 필요합니다.");
+    return;
+  }
+
+  try {
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/signup`, {
+      userId: id,
+      password,
+      passwordConfirm: password,
+      nickname,
+      birthYear: birthyear,
+      idCheckToken: idToken,
+      nickCheckToken: nickToken,
+    });
+    console.log(response.data);
   } catch (err) {
-    setIsNickAvailable(false);
     console.error(err);
-    console.log(nickname);
-    
+    setError("회원가입 중 오류가 발생했습니다.");
   }
 };
 
- const handleSignIn = async () => {
-  try {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/auth/signup`,  
-      {
-        userId : id,
-        password : password,
-        passwordConfirm : password,
-        nickname : nickname,
-        birthYear : birthyear,
-        idCheckToken : IdToken,
-        nickCheckToken : NameToken
-      }
-    );
-    
-    console.log(response.data);  
-  } catch (err) {
-    console.log(mockdata);
-    console.error(err);
-    
-  }
-};
 
 
   // 비밀번호 확인 (※ 8자 조건 제거: 길이 > 0 이고 일치하면 OK)

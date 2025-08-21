@@ -38,29 +38,32 @@ export default function Login() {
   const nav = useNavigate();
   const [Id, setId] = useState("");
   const [password, setPassword] = useState("");
-  const [Token , setToken] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
-        userId: Id,
-        password: password,
-      });
 
-      const token = response.data.data.accessToken;
-      localStorage.setItem("accessToken", token);
-      console.log("로그인 성공:", response.data);
-      console.log("토큰 확인:", token);
+const handleLogin = async () => {
+  setLoading(true); // 로딩 시작
+  try {
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
+      userId: Id,
+      password: password,
+    });
 
-      setToken(token);
-      nav("/main");
-    } catch (error) {
-      console.log(Id);
-      console.log(password);
-      console.error("로그인 실패:", error.response?.data || error.message);
-      alert("아이디 또는 비밀번호가 올바르지 않습니다.");
-    }
-  };
+    const token = response.data.accessToken;
+    localStorage.setItem("accessToken", token);
+    console.log("로그인 성공:", token);
+    console.log(response.data);
+
+
+    nav("/main"); // 메인 페이지 이동
+  } catch (error) {
+    console.error("로그인 실패:", error.response?.data || error.message);
+    alert("아이디 또는 비밀번호가 올바르지 않습니다.");
+  } finally {
+    setLoading(false); // 로딩 종료
+  }
+};
+
 
 
   return (
