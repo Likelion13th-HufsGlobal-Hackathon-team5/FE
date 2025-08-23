@@ -2,6 +2,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import styled, { createGlobalStyle } from "styled-components";
+import axiosInstance from "../../AxiosInstance";
 
 /* ===== 폰트 & 이미지 불러오기 ===== */
 import JoyM from "../../fonts/TJJoyofsingingM_TTF.ttf"; // Medium
@@ -62,18 +63,13 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
   // loading : 버튼 로딩 상태
   // errorTop : 상단 에러(서버/검증 실패)
   // ---------------------------
-  const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorTop, setErrorTop] = useState("");
+  const [userData, setUserData] = useState(null);
 
-  // 기존 비밀번호 일치 여부 (UI 피드백용)
-  const isCurrentMatch = useMemo(
-    () => currentPw.length > 0 && currentPw === savedPassword,
-    [currentPw, savedPassword]
-  );
-  const showCurrentMsg = currentPw.length > 0;
+
 
   // 새 비밀번호 === 확인 비밀번호 (UI 피드백용)
   const isPwMatched = useMemo(
@@ -82,8 +78,17 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
   );
   const showMatchMsg = confirmPw.length > 0;
 
-  // 두 조건 모두 만족해야 변경 버튼 활성화
-  const canSubmit = isCurrentMatch && isPwMatched && !loading;
+  const canSubmit = isPwMatched && !loading;
+
+
+  
+  useEffect(() => {
+    axiosInstance.get("mypage/user").then((res) => {
+      setUserData(res.data);
+      console.log(res.data);
+      
+    });
+  }, []);
 
   // ESC로 닫기
   useEffect(() => {
@@ -96,37 +101,36 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
 
   // ===== 변경하기 (목 API 순서: 검증 → 변경) =====
   const handleConfirm = async () => {
-    if (!canSubmit) return;
-    setLoading(true);
-    setErrorTop("");
-    try {
-      // 1) (목) 기존 비밀번호 검증
-      const vRes = await verifyPasswordMock({ savedPassword, inputPassword: currentPw });
-      // (실제) const vRes = await verifyPassword({ inputPassword: currentPw });
+  if (!canSubmit) return;
+  setLoading(true);
+  setErrorTop("");
 
-      if (!vRes.ok) {
-        setErrorTop(vRes.message || "기존 비밀번호 확인에 실패했습니다.");
-        return;
-      }
+  try {
+    // PATCH 요청 (body는 일단 빈 객체)
 
-      // 2) (목) 새 비밀번호로 변경
-      const uRes = await updatePasswordMock({ newPassword: newPw });
-      // (실제) const uRes = await updatePassword({ newPassword: newPw });
-
-      if (!uRes.ok) {
-        setErrorTop(uRes.message || "비밀번호 변경에 실패했습니다.");
-        return;
-      }
-
-      // 성공: 부모에 알리고 닫기
-      onChanged?.();
+    const requestBody = {
+      nickname: userData?.nickname,
+      birthyear: userData?.birthYear,
+      password: newPw,
+      passwordConfirm: confirmPw
+    };
+    console.log("PATCH request body:", requestBody);
+    const response = await axiosInstance.patch("mypage/user-edit", requestBody);
+    // 성공 처리
+    if (response.status === 200) {
+      onChanged?.(); // 부모에게 알림
       onClose();
-    } catch (e) {
-      setErrorTop("비밀번호 변경 중 오류가 발생했습니다.");
-    } finally {
-      setLoading(false);
+    } else {
+      setErrorTop("비밀번호 변경에 실패했습니다.");
     }
-  };
+  } catch (e) {
+    
+    setErrorTop("비밀번호 변경 중 오류가 발생했습니다.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // === 여기서 핵심: 포털 + fixed 백드롭으로 부모 레이아웃에 영향 0 ===
   const modal = (
@@ -139,22 +143,6 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
 
           {/* 상단 에러 */}
           {errorTop && <TopError role="alert">{errorTop}</TopError>}
-
-          {/* 기존 비밀번호 */}
-          <InputBox>
-            <Input
-              type="password"
-              placeholder="기존 비밀번호"
-              value={currentPw}
-              onChange={(e) => setCurrentPw(e.target.value)}
-              disabled={loading}
-            />
-          </InputBox>
-          {showCurrentMsg && (
-            <Hint $ok={isCurrentMatch}>
-              {isCurrentMatch ? "기존 비밀번호가 맞아요!" : "기존 비밀번호와 동일하지 않아요!"}
-            </Hint>
-          )}
 
           {/* 변경 비밀번호 (위 간격 30px) */}
           <InputBox style={{ marginTop: "1.875rem" /* 30px */ }}>
