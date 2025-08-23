@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import PasswordModal from "./modals/passwordmodal";
 import LogoutModal from "./modals/logoutmodal";
 import { ReactComponent as Star } from "../assets/Star 4.svg"
+import { useEffect } from "react";
+import axiosInstance from "../AxiosInstance";
 
 const MyPageContainer = styled.div`
   display: flex;
@@ -170,12 +172,6 @@ const LogoutText = styled.div`
 
 function MyPage() {
     const navigate = useNavigate();
-    const [user] = useState({
-        nickname: "조아용",
-        id: "joayong_123",
-        birth: 2000,
-        password: "******"
-      });
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const openModal = () => setIsModalOpen(true);
@@ -184,9 +180,32 @@ function MyPage() {
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const openLogoutModal = () => setIsLogoutModalOpen(true);
     const closeLogoutModal = () => setIsLogoutModalOpen(false);
+
+
+
+    const [userData, setUserData] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                setLoading(true);
+                const response = await axiosInstance.get("/mypage/user");
+                setUserData(response.data);
+                console.log(response.data);
+            } catch (err) {
+                console.error("유저 정보 불러오기 실패:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
     return (
         <MyPageContainer>
-        {isModalOpen && <PasswordModal savedPassword={user.password} onClose={closeModal} />}
+        {isModalOpen && <PasswordModal savedPassword={userData.password} onClose={closeModal} />}
         {isLogoutModalOpen && <LogoutModal onClose={closeLogoutModal} />}
         <BackButton onClick={() => navigate(-1)} />
 
@@ -195,19 +214,19 @@ function MyPage() {
         </MyPageBox>
 
         <InfoBox>
-            <Name>{user.nickname} 님</Name>
+            <Name>{userData?.nickname} 님</Name>
             <Divider />
             <InfoRow>
             <Label>닉네임</Label>
-            <Value>{user.nickname}</Value>
+            <Value>{userData?.nickname}</Value>
             </InfoRow>
             <InfoRow>
             <Label>아이디</Label>
-            <Value>{user.id}</Value>
+            <Value>{userData?.userId}</Value>
             </InfoRow>
             <InfoRow>
             <Label>출생 연도</Label>
-            <Value>{user.birth}</Value>
+            <Value>{userData?.birthYear}</Value>
             </InfoRow>
             <InfoRow>
             <Label>비밀번호</Label>

@@ -5,6 +5,7 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { FaStar } from "react-icons/fa";
 import axiosInstance from "../AxiosInstance";
+import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
   display: flex;
@@ -218,6 +219,11 @@ const Star = styled(FaStar)`
 export default function Main(){
 
     const [value, setValue] = useState(new Date(2025, 0, 1));
+    const [festivalList, setFestivalList] = useState([]);
+    const [activeStars, setActiveStars] = useState({});
+    const navigate = useNavigate();
+
+
 
      const festivals = [
     { name: "풍선 축제", period: "2025.07.30 ~ 08.20" },
@@ -233,10 +239,7 @@ export default function Main(){
     { name: "리스트 가을 단풍 축제", period: "2025.10.10 ~ 10.20" }
   ];
 
-      const [activeStars, setActiveStars] = useState(
-    new Array(festivals.length).fill(false) // 처음엔 모두 비활성
-  );
-  // 데이터가 있는 날짜 목록
+   
   const dataDates = [
     new Date(2025, 0, 30), // 1월 30일
     new Date(2025, 0, 31)  // 1월 31일36
@@ -259,33 +262,57 @@ export default function Main(){
     return null;
   };
 
-    const toggleStar = (idx) => {
-    const newStars = [...activeStars];
-    newStars[idx] = !newStars[idx]; // 클릭 시 반전
-    setActiveStars(newStars);
-  };
+    const toggleStar = async (festivalId) => {
+      setActiveStars((prev) => ({
+        ...prev,
+        [festivalId]: !prev[festivalId], // 먼저 UI 변경
+      }));
+
+      try {
+        await handleBookmark(festivalId);
+      } catch (error) {
+        // 실패 시 원상 복구
+        setActiveStars((prev) => ({
+          ...prev,
+          [festivalId]: !prev[festivalId],
+        }));
+      }
+    };
 
 
   const handleCalendar = async (year, month, date) => {
-  try {
-    const response = await axiosInstance.get(`/calendar`, {
-      params: {
-        year: Number(year),
-        month: Number(month),
-        date: Number(date),
-      }
-    });
-    console.log("캘린더 데이터 불러오기 성공:", response.data);
+    try {
+      const response = await axiosInstance.get(`/calendar`, {
+        params: { year: Number(year), month: Number(month), date: Number(date) }
+      });
 
+      console.log("캘린더 데이터 불러오기 성공:", response.data);
+
+      // 데이터가 있을 경우 리스트 갱신
+      if (response.data && response.data.length > 0) {
+        setFestivalList(response.data);
+      } else {
+        setFestivalList([]); // 데이터 없으면 빈 배열
+      }
+    } catch (error) {
+      console.error("오류:", error.response?.data || error.message);
+      setFestivalList([]);
+    }
+  };
+
+  const handleBookmark = async (festivalId) => {
+  try {
+    const response = await axiosInstance.post(`/bookmarks`, {
+      festivalId: festivalId
+    });
+
+    console.log("북마크 등록 성공:", response.data);
     return response.data;
   } catch (error) {
-    console.log(year, month, date);
-    
-    console.error("오류:", error.response?.data || error.message);
+    console.error("북마크 등록 실패:", error.response?.data || error.message);
     throw error;
   }
 };
-
 
     return(
         <Container>
@@ -311,32 +338,50 @@ export default function Main(){
                 />
             </CalendarWrap>
             <HeaderContainer>
-                <HeaderTwo>{isDataDate ? "축제 리스트" : "인기 축제"}</HeaderTwo>
+                <HeaderTwo>{festivalList.length > 0 ? "축제 리스트" : "인기 축제"}</HeaderTwo>
             </HeaderContainer>
             <ListContainer>
-            {isDataDate
-                ? listfestivals.map((fest, idx) => (
-                    <ListBox key={idx}>
-                    <StarContainer onClick={() => toggleStar(idx)}>
-                        <Star $active={activeStars[idx]} onClick={() => toggleStar(idx)} />
-                    </StarContainer>
-                    <ListFooter>
-                        <Title className="festival-name">{fest.name}</Title>
-                        <Subtitle className="festival-period">{fest.period}</Subtitle>
-                    </ListFooter>
+              {festivalList.length > 0
+                ? festivalList.map((fest, idx) => (
+                    <ListBox key={fest.festivalId || idx} onClick={() => 
+                        navigate("/detail", { state: { festivalId: fest.festivalId } })
+                      }>
+                      <StarContainer onClick={() => toggleStar(idx)}>
+                          <Star
+                            $active={activeStars[fest.festivalId] || false}
+                            onClick={
+                              activeStars[fest.festivalId]
+                                ? undefined // 이미 활성화된 경우 클릭 불가
+                                : () => toggleStar(fest.festivalId)
+                            }
+                          />
+                      </StarContainer>
+                      <ListFooter>
+                        <Title>{fest.festivalName}</Title>
+                        <Subtitle>
+                          {`${fest.festivalStart} ~ ${fest.festivalEnd}`}
+                        </Subtitle>
+                      </ListFooter>
                     </ListBox>
-                ))
+                  ))
                 : festivals.map((fest, idx) => (
                     <ListBox key={idx}>
-                    <StarContainer onClick={() => toggleStar(idx)}>
-                        <Star $active={activeStars[idx]} onClick={() => toggleStar(idx)} />
-                    </StarContainer>
-                    <ListFooter>
-                        <Title className="festival-name">{fest.name}</Title>
-                        <Subtitle className="festival-period">{fest.period}</Subtitle>
-                    </ListFooter>
+                      <StarContainer onClick={() => toggleStar(idx)}>
+                        <Star
+                          $active={activeStars[fest.festivalId] || false}
+                          onClick={
+                            activeStars[fest.festivalId]
+                              ? undefined // 이미 활성화된 경우 클릭 불가
+                              : () => toggleStar(fest.festivalId)
+                          }
+                        />
+                      </StarContainer>
+                      <ListFooter>
+                        <Title>{fest.name}</Title>
+                        <Subtitle>{fest.period}</Subtitle>
+                      </ListFooter>
                     </ListBox>
-                ))}
+                  ))}
             </ListContainer>
         </Container>
     )

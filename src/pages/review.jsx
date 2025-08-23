@@ -5,7 +5,9 @@ import { ReactComponent as Up } from "../assets/up.svg";
 import bg from "../assets/review_bg.png";
 import backicon from "../assets/back_blue.svg";
 import { useNavigate } from "react-router-dom";
-
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
+import axiosInstance from "../AxiosInstance";
 
 const Container = styled.div`
   display: flex;
@@ -130,6 +132,39 @@ cursor: pointer;
 const ReviewPage = () => {
   const [openIndexes, setOpenIndexes] = useState([]);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { festivalId } = location.state || {};
+  const [data , setData ] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const token = localStorage.getItem("accessToken"); // 로그인 시 저장한 토큰
+  axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+  console.log("토큰 확인:", token);
+
+useEffect(() => {
+  const fetchReviewData = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(`/festivals/${festivalId}/reviews`, {
+        params: {
+          festivalId : festivalId,
+          cursor: 0, 
+          size: 20
+        }
+      });
+      setData(response.data);
+      console.log(response.data);
+    } catch (err) {
+      console.error("요약 불러오기 실패:", err.response?.data || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if(festivalId) fetchReviewData();
+}, [festivalId]);
+
 
 
   const reviews = [
@@ -205,7 +240,7 @@ const ReviewPage = () => {
         ))}
       </ReviewList>
 
-      <WriteButton onClick={() => navigate("/newreview")}
+      <WriteButton onClick={() => navigate("/newreview",{ state: { festivalId : festivalId} })}
         >리뷰 작성하기</WriteButton>
     </Container>
   );

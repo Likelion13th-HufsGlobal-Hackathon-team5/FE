@@ -5,6 +5,10 @@ import bg from "../assets/signup-bg.png";
 import bb from "../assets/back.svg";
 import { ReactComponent as Go } from "../assets/go.svg"
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import axiosInstance from "../AxiosInstance";
+import { useState } from "react";
+
 
 const Container = styled.div`
   display: flex;
@@ -114,38 +118,26 @@ const Arrow = styled.div`
 
 export default function BookmarkPage() {
     const navigate = useNavigate();
-  const bookmarks = [
-    {
-      id: 1,
-      title: "풍선 축제",
-      date: "2025.07.30 ~ 08.20",
-      image: sampleImage,
-    },
-    {
-      id: 2,
-      title: "풍선 축제",
-      date: "2025.07.30 ~ 08.20",
-      image: sampleImage,
-    },
-    {
-      id: 3,
-      title: "풍선 축제",
-      date: "2025.07.30 ~ 08.20",
-      image: sampleImage,
-    },
-    {
-        id: 4,
-        title: "풍선 축제",
-        date: "2025.07.30 ~ 08.20",
-        image: sampleImage,
-      },
-      {
-        id: 5,
-        title: "풍선 축제",
-        date: "2025.07.30 ~ 08.20",
-        image: sampleImage,
-      },
-  ];
+    const [markData, setMarkData] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+      useEffect(() => {
+          const fetchBookMarkData = async () => {
+              try {
+                  setLoading(true);
+                  const response = await axiosInstance.get("/mypage/bookmarks");
+                  setMarkData(response.data.data);
+                  console.log(response.data);
+
+              } catch (err) {
+                  console.error("북마크 불러오기 실패:", err);
+              } finally {
+                  setLoading(false);
+              }
+          };
+  
+          fetchBookMarkData();
+      }, []);
 
   return (
     <Container>
@@ -154,17 +146,26 @@ export default function BookmarkPage() {
             <BmTitle>북마크</BmTitle>
         </BmBox>
       <CardList>
-        {bookmarks.map((item) => (
-          <Card key={item.id} bg= {item.image}>
-            <CardText>
-              <Title>{item.title}</Title>
-              <Date>{item.date}</Date>
-            </CardText>
-            <Arrow onClick={() => navigate("/detail")}>
+        {markData?.items?.length > 0 ? (
+          markData.items.map((item) => (
+            <Card
+              key={item.bookmarkId}
+              bg={item.festival.festivalImage || sampleImage}
+            >
+              <CardText>
+                <Title>{item.festival.festivalName}</Title>
+                <Date>
+                  {item.festival.festivalStart} ~ {item.festival.festivalEnd}
+                </Date>
+              </CardText>
+              <Arrow onClick={() => navigate(`/detail/${item.festival.festivalId}`)}>
                 <Go />
-            </Arrow>
-          </Card>
-        ))}
+              </Arrow>
+            </Card>
+          ))
+        ) : (
+          <div>북마크가 없습니다.</div>
+        )}
       </CardList>
     </Container>
   );

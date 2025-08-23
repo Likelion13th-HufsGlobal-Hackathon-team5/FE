@@ -54,7 +54,7 @@ const handleLogin = async () => {
     console.log("로그인 성공:", token);
     console.log(response.data);
 
-
+    localStorage.setItem("userId", Id);
     nav("/main"); // 메인 페이지 이동
   } catch (error) {
     console.error("로그인 실패:", error.response?.data || error.message);

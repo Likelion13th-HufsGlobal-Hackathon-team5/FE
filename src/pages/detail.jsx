@@ -1,9 +1,12 @@
 import styled from "styled-components";
 import bgImage from "../assets/signup-bg.png";
 import { FaStar } from "react-icons/fa";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
+import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axiosInstance from "../AxiosInstance";
+import { useLocation } from "react-router-dom";
+
 
 const Container = styled.div`
   display: flex;
@@ -52,11 +55,16 @@ const DetailTitle = styled.h1`
     font-weight: 700;
     line-height: normal;
     margin-left: 0.65rem;
+    white-space: nowrap;        /* 한 줄로 유지 */
+    overflow: hidden;           /* 넘친 내용 숨기기 */
+    text-overflow: ellipsis;    /* ... 표시 */
+    max-width: 15rem;           /* 필요에 따라 조정 */
 `
 
 const Star = styled(FaStar)`
-  width: 1.875rem;
-  height: 1.875rem;
+  width: 5.5rem;
+  height: 3.5rem;
+  margin-right: 1rem;
   border-radius: 0.1rem;
   fill: ${({ $active }) => ($active ? "#FFEB34" : "#ccc")};
   margin-left: 5.31rem;
@@ -178,10 +186,35 @@ export default function Detail(){
 
     const [activeStar, setActiveStar] = useState(false);
     const Navigate = useNavigate();
+    const [festivalData, setFestivalData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const location = useLocation();
+    const { festivalId } = location.state || {}; // state에서 festivalId 가져오기
+
+    console.log("받은 festivalId:", festivalId);
 
     const toggleStar = () => {
         setActiveStar((prev) => !prev);
     };
+        useEffect(() => {
+        if (!festivalId) return;
+
+        const fetchFestival = async () => {
+            try {
+                setLoading(true);
+                const response = await axiosInstance.get(`/calendar/${festivalId}`);
+                setFestivalData(response.data);
+                console.log("받았다" ,response.data);
+                
+            } catch (err) {
+                console.error("축제 데이터 불러오기 실패:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFestival();
+    }, [festivalId]);
 
 
     return(
@@ -191,28 +224,33 @@ export default function Detail(){
                     <Back/>
                 </BackBtn>
             </BackConatiner>
+            {loading ? (
+            <p>로딩 중...</p>
+        ) : !festivalData ? (
+            <p>데이터가 없습니다.</p>
+        ) : (
             <DetailContainer>
                 <TitleContainer>
-                    <DetailTitle>풍선 축제</DetailTitle>
+                    <DetailTitle>{festivalData.festivalName}</DetailTitle>
                     <Star $active={activeStar} onClick={toggleStar} />
                 </TitleContainer>
-                <DayText>2025. 07.30 - 08.20</DayText>
-                <RegText>경기도 용인시 처인구 모현읍 외대로 81</RegText>
+                <DayText>{festivalData.festivalStart} - {festivalData.festivalEnd}</DayText>
+                <RegText>{festivalData.festivalLoca}</RegText>
                 <Img />
                 <IntroTitle>소개</IntroTitle>
-                <IntroDetail>알록달록한 대형 풍선이 하늘을 수놓는 마을 축제예요. 낮에는 가족 단위 체험 부스가 열리고, 밤에는 풍선 불빛 퍼레이드가 펼쳐져요!
-                인생샷 찍기 딱 좋은 포토존도 가득해요 :)
+                <IntroDetail>
+                    {festivalData.festivalDesc}
                 </IntroDetail>
                 <AiContainer>
                     <IntroTitle>AI 리뷰</IntroTitle>
                 </AiContainer>
                 <IntroDetail>
-                    사진 찍기 좋은 포토존이 많고, 분위기가 너무 아기자기해요! 밤에 열리는 풍선 퍼레이드는 꼭 봐야 해요!
+                    {festivalData.aiReview}
                 </IntroDetail>
                 <BtnContainer>
-                    <DetailBtn onClick={() => Navigate("/review")}>전체 리뷰 보기</DetailBtn>
+                    <DetailBtn onClick={() => Navigate("/review", { state: { festivalId: festivalId } })}>전체 리뷰 보기</DetailBtn>
                 </BtnContainer>
-            </DetailContainer>
+            </DetailContainer>)}
         </Container>
     )
 }
