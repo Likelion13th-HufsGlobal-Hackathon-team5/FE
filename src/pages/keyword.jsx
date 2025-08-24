@@ -1,24 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import bg from "../assets/signup-bg.png"
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../AxiosInstance";
 import { ReactComponent as Star } from "../assets/kw_star.svg"
-import { ReactComponent as Music } from "../assets/react-icons/BiSolidMusic.svg";
-import { ReactComponent as Camera } from "../assets/react-icons/BsFillCameraFill.svg";
-import { ReactComponent as Leaf } from "../assets/react-icons/FaLeaf.svg";
-import { ReactComponent as Person } from "../assets/react-icons/FaPersonHiking.svg";
-import { ReactComponent as Drink } from "../assets/react-icons/BiSolidDrink.svg";
-import { ReactComponent as Yin } from "../assets/react-icons/BsYinYang.svg";
-import { ReactComponent as Chat } from "../assets/react-icons/BsChatLeftHeartFill.svg";
-import { ReactComponent as Store } from "../assets/react-icons/FaStore.svg";
-import { ReactComponent as Water } from "../assets/react-icons/FaWaterLadder.svg";
-import { ReactComponent as Energy } from "../assets/react-icons/GiPartyFlags.svg";
-import { ReactComponent as Sparkle } from "../assets/react-icons/GiSparkles.svg";
-import { ReactComponent as Spoon } from "../assets/react-icons/ImSpoonKnife.svg";
-import { ReactComponent as Dog } from "../assets/react-icons/LuDog.svg";
-import { ReactComponent as Baby } from "../assets/react-icons/PiBabyBold.svg";
-import { ReactComponent as Quiet } from "../assets/react-icons/quiet.svg";
-
 
 const Container = styled.div`
   display: flex;
@@ -99,12 +85,12 @@ const Label = styled.div`
   width: 100%;
   text-align: left; 
   color: #3F3F3F;
-font-family: "TJ Joy of singing TTF";
-font-size: ${({ selected, long }) => (long ? "0.89rem" : "0.9375rem")};
-font-style: normal;
-font-weight: 700;
-line-height: normal;
-align-items: flex-start;
+  font-family: "TJ Joy of singing TTF";
+  font-size: 0.9375rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  align-items: flex-start;
 `;
 
 const ActionButton = styled.button`
@@ -130,30 +116,53 @@ const ActionButton = styled.button`
     cursor: pointer;
 `;
 
-const keywords = [
-  { id: 1, label: "힐링하기 좋은", icon: Leaf },
-  { id: 2, label: "좋은 음악이 있는", icon: Music },
-  { id: 3, label: "혼자도 즐길 수 있는", icon: Person },
-  { id: 4, label: "사진 찍기 좋은", icon: Camera },
-  { id: 5, label: "먹거리가 많은", icon: Spoon },
-  { id: 6, label: "전통 문화를 즐길 수 있는", icon: Yin },
-  { id: 7, label: "불꽃놀이가 있는", icon: Sparkle },
-  { id: 8, label: "아이와 함께 즐길 수 있는", icon: Baby },
-  { id: 9, label: "데이트하기 좋은", icon: Chat },
-  { id: 10, label: "에너지가 넘치는", icon: Energy },
-  { id: 11, label: "조용히 즐길 수 있는", icon: Quiet },
-  { id: 12, label: "강아지와 즐길 수 있는", icon: Dog },
-  { id: 13, label: "물놀이 할 수 있는", icon: Water },
-  { id: 14, label: "플리마켓이 있는", icon: Store },
-  { id: 15, label: "술을 맛볼 수 있는", icon: Drink },
-  { id: 16, label: "술을 맛볼 수 있는", icon: Drink },
-  { id: 17, label: "술을 맛볼 수 있는", icon: Drink },
-
-];
-
 export default function KeywordSelector() {
+  const [keywords, setKeywords] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const navigate = useNavigate();
+
+  // const keywordMocking = [
+  //   { id: 1, label: "이유준", icon: "https://www.svgrepo.com/download/373300/mock.svg" },
+  //   { id: 2, label: "이지연", icon: "https://www.svgrepo.com/download/373300/mock.svg" },
+  // ];
+
+  useEffect(() => {
+    const fetchKeywords = async () => {
+      try {
+        const response = await axiosInstance.get("/keywords");
+        setKeywords(response.data.items);
+        //setKeywords(keywordMocking);
+      } catch (error) {
+        console.error("키워드 불러오기 실패", error);
+      }
+    };
+    fetchKeywords();
+  }, []);
+
+  const saveKeywords = async () => {
+    try {
+      const response = await axiosInstance.put(
+        "/me/selected-keywords",
+        { keywordIds: selectedIds }
+      );
+
+      if (response.data.success) {
+        console.log("저장 성공:", response.data.data);
+        navigate("/airecommend", { state: { selectedIds } });
+      } else {
+        alert(response.data.error?.message || "키워드 저장 실패");
+      }
+    } catch (error) {
+      console.error("키워드 저장 실패", error);
+      if (error.response?.status === 401) {
+        console.log(error)
+      } else if (error.response?.status === 400) {
+        alert("유효하지 않은 키워드가 포함되어 있습니다.");
+      } else {
+        alert("서버 오류가 발생했습니다.");
+      }
+    }
+  };
 
   const toggleSelect = (id) => {
     setSelectedIds((prev) =>
@@ -163,11 +172,11 @@ export default function KeywordSelector() {
 
   return (
     <Container>
-        <KeywordBox>
-            <KeywordTitle>
-            <Star />키워드
-            </KeywordTitle>
-        </KeywordBox>
+      <KeywordBox>
+        <KeywordTitle>
+          <Star />키워드
+        </KeywordTitle>
+      </KeywordBox>
       <Content>원하는 키워드를 선택해 주세요! <br />
         키워드를 바탕으로 AI가 축제를 추천해 줘요 :)</Content>
       <Grid>
@@ -176,15 +185,15 @@ export default function KeywordSelector() {
             key={k.id}
             selected={selectedIds.includes(k.id)}
             onClick={() => toggleSelect(k.id)}
-            >
-            <Label 
-            selected={selectedIds.includes(k.id)} long={k.label.length > 11}>
-                {k.label}</Label>
-            <Icon><k.icon /></Icon>
+          >
+            <Label>
+              {k.label}</Label>
+            <Icon><img width={50} height={50} src={k.icon} /></Icon>
+            {/* <Icon><k.icon /></Icon> */}
           </KeywordButton>
         ))}
       </Grid>
-      <ActionButton onClick={() => navigate("/airecommend")}>Let's go!
+      <ActionButton onClick={saveKeywords}>Let's go!
 
       </ActionButton>
     </Container>
