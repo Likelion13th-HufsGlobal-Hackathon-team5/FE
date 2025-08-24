@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useState } from "react";
-// src/pages/login.jsx
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +9,7 @@ import bgImage from "../assets/signup-bg.png";
 import yong from "../assets/login-yong.png";
 import cloud from "../assets/구름.png";
 import miniCloud from "../assets/미니구름.png";
-import titleImg from "../assets/요기용인.png";
+import titleImg from "../assets/요기용in.svg";
 
 /* === Fonts === */
 import JoyB from "../fonts/TJJoyofsingingB_TTF.ttf"; // Bold
@@ -41,28 +40,28 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
 
-const handleLogin = async () => {
-  setLoading(true); // 로딩 시작
-  try {
-    const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
-      userId: Id,
-      password: password,
-    });
+  const handleLogin = async () => {
+    setLoading(true); // 로딩 시작
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
+        userId: Id,
+        password: password,
+      });
 
-    const token = response.data.accessToken;
-    localStorage.setItem("accessToken", token);
-    console.log("로그인 성공:", token);
-    console.log(response.data);
+      const token = response.data.accessToken;
+      localStorage.setItem("accessToken", token);
+      console.log("로그인 성공:", token);
+      console.log(response.data);
 
-    localStorage.setItem("userId", Id);
-    nav("/main"); // 메인 페이지 이동
-  } catch (error) {
-    console.error("로그인 실패:", error.response?.data || error.message);
-    alert("아이디 또는 비밀번호가 올바르지 않습니다.");
-  } finally {
-    setLoading(false); // 로딩 종료
-  }
-};
+      localStorage.setItem("userId", Id);
+      nav("/main"); // 메인 페이지 이동
+    } catch (error) {
+      console.error("로그인 실패:", error.response?.data || error.message);
+      alert("아이디 또는 비밀번호가 올바르지 않습니다.");
+    } finally {
+      setLoading(false); // 로딩 종료
+    }
+  };
 
 
 
@@ -193,14 +192,17 @@ const baseBtn = `
 
 const LoginBtn = styled.button`
   ${baseBtn}
-  background: #66ce94;
   color: #fff;
+  border-radius: 6.25rem;
+  background: #66CE94;
+  box-shadow: 2px 2px 7px 0 rgba(0, 0, 0, 0.25);
 `;
 
 const SignupBtn = styled.button`
   ${baseBtn}
   background: #fcfaf0;
   color: #000;
+  box-shadow: 2px 2px 7px 0 rgba(0, 0, 0, 0.25);
 `;
 
 const Cloud = styled.img`
@@ -237,12 +239,13 @@ const SpeechBubble = styled.div`
   &::after {
     content: '';
     position: absolute;
-    bottom: -0.6rem;
-    left: 1.5rem;
-    border-width: 0.6rem;
+    bottom: -0.2rem;  /* 바깥으로 빼기 */
+    left: 6%;        /* 중앙 */
+    transform: translateX(-50%);
+    border-width: 0.6rem 0.6rem 0 0.6rem; 
     border-style: solid;
     border-color: #00c674 transparent transparent transparent;
-    transform: rotate(-18deg);
+    transform: rotate(29deg);
   }
 `;
 
