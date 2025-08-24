@@ -8,6 +8,8 @@ import axiosInstance from "../AxiosInstance";
 import useEmblaCarousel from "embla-carousel-react";
 import { ReactComponent as Go } from "../assets/go.svg"
 import { useNavigate } from "react-router-dom";
+import { ReactComponent as Ss } from "../assets/Star-stroke.svg"
+import { ReactComponent as S } from "../assets/Star 4.svg"
 
 const useMultipleCarousel = () => {
   const options = {};
@@ -37,6 +39,23 @@ export default function AiRecommendation() {
   const [items, setItems] = useState([]);
   const carousels = useMultipleCarousel();
   const navigate = useNavigate();
+  const [bookmarks, setBookmarks] = useState(() => {
+    const saved = localStorage.getItem("bookmarks");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const toggleBookmark = (festival) => {
+    setBookmarks((prev) => {
+      let updated;
+      if (prev.some((f) => f.festivalId === festival.festivalId)) {
+        updated = prev.filter((f) => f.festivalId !== festival.festivalId);
+      } else {
+        updated = [...prev, festival];
+      }
+      localStorage.setItem("bookmarks", JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   useEffect(() => {
     (async () => {
@@ -126,7 +145,6 @@ export default function AiRecommendation() {
   return (
     <Container>
       <Header>AI 추천</Header>
-
       <CardContainer>
         {cards.map((card, idx) => (
           <Card key={idx}>
@@ -153,29 +171,26 @@ export default function AiRecommendation() {
                           <Date>
                             {(it?.festivalStart || "2025.07.30")} ~ {(it?.festivalEnd || "08.20")}
                           </Date>
+                          <Arrow onClick={() => navigate(`/detail/${it?.festivalId ?? 0}`)}>
+                            <Go />
+                          </Arrow>
+                          <BookM onClick={() => toggleBookmark(it)}>
+                            {bookmarks.some((f) => f.festivalId === it.festivalId)
+                              ? <S width={22} height={22} />
+                              : <Ss width={22} height={22} />
+                            }
+                          </BookM>
                         </InfoContianer>
                       </ImagePlaceholder>
                     </ImageBox>
                   ))
-                  : [1, 2, 3].map((n) => (
-                    <ImageBox key={n}>
-                      <ImagePlaceholder>
-                        <InfoContianer>
-                          <FestivalName>풍선 축제</FestivalName>
-                          <Date>2025.07.30 ~ 08.20</Date>
-                          <Arrow onClick={() => navigate(`/detail/${it.festival.festivalId}`)}>
-                            <Go />
-                          </Arrow>
-                        </InfoContianer>
-                      </ImagePlaceholder>
-                    </ImageBox>
-                  ))}
+                  : null}
               </CarouselContainer>
             </Carousel>
           </Card>
         ))}
       </CardContainer>
-    </Container>
+    </Container >
   );
 }
 
@@ -232,6 +247,27 @@ const Card = styled.div`
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
 `;
 
+const BookM = styled.div`
+  width: 1.9375rem;
+  height: 3.1875rem;
+  position: absolute;
+  left: 1.0625rem;
+  fill: rgba(255, 255, 255, 0.50);
+  backdrop-filter: blur(5px);
+  top: 0rem;       
+  z-index: 2;       
+  border-width: 0.5px;
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.4);
+  border-top: none;
+  display: flex;    
+  align-items: flex-end;
+  padding-bottom: 6px;
+  box-sizing: border-box;
+  justify-content: center; 
+  border-radius: 0 0 10px 10px;
+`
+
 const Title = styled.h3`
   font-size: clamp(0.9rem, 2vw, 1.1rem);
   font-family: "TJ Joy of singing TTF";
@@ -272,6 +308,7 @@ const ImageBox = styled.div`
 `;
 
 const ImagePlaceholder = styled.div`
+  position: relative;
   height: 12.31rem;
   border-radius: 0.8rem;
   padding: 0.625rem;
@@ -281,20 +318,22 @@ const ImagePlaceholder = styled.div`
   border-radius: 1.25rem;
   border: 1.5px solid #A9A9A9;
   width: 18.1875rem;
-  background: linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%), url() lightgray 50% / cover no-repeat;
+  background: linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%), lightgray 50% / cover no-repeat;
 `;
 
 const InfoContianer = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 0.09rem;
 `;
 
 const FestivalName = styled.span`
+  color: #111;
+  font-family: "TJ Joy of singing TTF";
   font-size: 0.9375rem;
   font-style: normal;
   font-weight: 500;
-  line-height: normal;
-  font-family: "TJJoyofsingingB";
+  line-height: normal;;
 `;
 
 const Date = styled.span`
@@ -307,7 +346,7 @@ const Date = styled.span`
 
 const Arrow = styled.div`
     position: absolute;
-    bottom: 0.37rem;
+    top: 0.37rem;
     right: 0.37rem;
     border-radius: 50%;
     width: 1.75rem;

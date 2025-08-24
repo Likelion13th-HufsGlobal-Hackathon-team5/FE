@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import sampleImage from "../assets/review_bg.png"; 
+import sampleImage from "../assets/review_bg.png";
 import bg from "../assets/signup-bg.png";
 import bb from "../assets/back.svg";
 import { ReactComponent as Go } from "../assets/go.svg"
@@ -78,7 +78,7 @@ const Card = styled.div`
     border-radius: 1.25rem;
     border: 1.5px solid #A9A9A9;
     flex-shrink: 0;
-    background: linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%), url(${props => props.bg}) lightgray 50% / cover no-repeat;
+    background: linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%) lightgray 50% / cover no-repeat;
 `;
 
 const CardText = styled.div`
@@ -117,34 +117,34 @@ const Arrow = styled.div`
 `;
 
 export default function BookmarkPage() {
-    const navigate = useNavigate();
-    const [markData, setMarkData] = useState(null);
-    const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [markData, setMarkData] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-      useEffect(() => {
-          const fetchBookMarkData = async () => {
-              try {
-                  setLoading(true);
-                  const response = await axiosInstance.get("/mypage/bookmarks");
-                  setMarkData(response.data.data);
-                  console.log(response.data);
+  useEffect(() => {
+    const fetchBookMarkData = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get("/mypage/bookmarks");
+        setMarkData(response.data.data);
+        console.log(response.data);
 
-              } catch (err) {
-                  console.error("북마크 불러오기 실패:", err);
-              } finally {
-                  setLoading(false);
-              }
-          };
-  
-          fetchBookMarkData();
-      }, []);
+      } catch (err) {
+        console.error("북마크 불러오기 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookMarkData();
+  }, []);
 
   return (
     <Container>
-        <BackButton onClick={() => navigate(-1)} />
-        <BmBox>
-            <BmTitle>북마크</BmTitle>
-        </BmBox>
+      <BackButton onClick={() => navigate(-1)} />
+      <BmBox>
+        <BmTitle>북마크</BmTitle>
+      </BmBox>
       <CardList>
         {markData?.items?.length > 0 ? (
           markData.items.map((item) => (
