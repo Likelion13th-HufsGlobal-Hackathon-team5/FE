@@ -39,22 +39,33 @@ export default function AiRecommendation() {
   const [items, setItems] = useState([]);
   const carousels = useMultipleCarousel();
   const navigate = useNavigate();
-  const [bookmarks, setBookmarks] = useState(() => {
-    const saved = localStorage.getItem("bookmarks");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [activeStars, setActiveStars] = useState({});
 
-  const toggleBookmark = (festival) => {
-    setBookmarks((prev) => {
-      let updated;
-      if (prev.some((f) => f.festivalId === festival.festivalId)) {
-        updated = prev.filter((f) => f.festivalId !== festival.festivalId);
-      } else {
-        updated = [...prev, festival];
-      }
-      localStorage.setItem("bookmarks", JSON.stringify(updated));
-      return updated;
-    });
+  const handleBookmark = async (festivalId) => {
+    try {
+      const response = await axiosInstance.post(`/bookmarks`, {
+        festivalId: festivalId
+      });
+
+      console.log("북마크 등록 성공:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("북마크 등록 실패:", error.response?.data || error.message);
+      throw error;
+    }
+  };
+
+  const toggleStar = (festivalId) => {
+    // UI 먼저 바꾸기
+    setActiveStars(prev => ({
+      ...prev,
+      [festivalId]: !prev[festivalId]
+    }));
+
+    // 서버 요청, 실패해도 UI는 유지
+    handleBookmark(festivalId)
+      .then(res => console.log("북마크 등록 성공:", res))
+      .catch(err => console.error("북마크 등록 실패:", err));
   };
 
   useEffect(() => {
@@ -174,11 +185,13 @@ export default function AiRecommendation() {
                           <Arrow onClick={() => navigate(`/detail/${it?.festivalId ?? 0}`)}>
                             <Go />
                           </Arrow>
-                          <BookM onClick={() => toggleBookmark(it)}>
-                            {bookmarks.some((f) => f.festivalId === it.festivalId)
+                          <BookM onClick={(e) => {
+                            e.stopPropagation();
+                            toggleStar(it.festivalId);
+                          }}>
+                            {activeStars[it.festivalId]
                               ? <S width={22} height={22} />
-                              : <Ss width={22} height={22} />
-                            }
+                              : <Ss width={22} height={22} />}
                           </BookM>
                         </InfoContianer>
                       </ImagePlaceholder>
