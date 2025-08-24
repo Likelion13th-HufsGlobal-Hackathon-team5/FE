@@ -136,23 +136,6 @@ export default function AiRecommendation() {
     [grouped, items]
   );
 
-  const sliderSettings = {
-    dots: false,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1.1,
-    slidesToScroll: 1,
-    arrows: false,
-    centerMode: false,
-    draggable: true,
-    swipeToSlide: true,
-
-    responsive: [
-      { breakpoint: 768, settings: { slidesToShow: 1.2 } },
-      { breakpoint: 1024, settings: { slidesToShow: 2.5 } },
-    ],
-  };
-
   return (
     <Container>
       <Header>AI 추천</Header>
@@ -331,7 +314,10 @@ const ImagePlaceholder = styled.div`
   border-radius: 1.25rem;
   border: 1.5px solid #A9A9A9;
   width: 18.1875rem;
-  background: linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%), lightgray 50% / cover no-repeat;
+  background: 
+    linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%), 
+    url(${props => props.imagePath}) no-repeat center center / cover, 
+    lightgray; 
 `;
 
 const InfoContianer = styled.div`

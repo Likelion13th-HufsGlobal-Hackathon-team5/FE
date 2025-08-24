@@ -7,6 +7,8 @@ import { FaStar } from "react-icons/fa";
 import axiosInstance from "../AxiosInstance";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { ReactComponent as Ss } from "../assets/Star-stroke.svg"
+import { ReactComponent as S } from "../assets/Star 4.svg"
 
 const Container = styled.div`
   display: flex;
@@ -164,11 +166,12 @@ const ListContainer = styled.div`
 `;
 
 const ListBox = styled.div`
+position: relative;
     display: flex;
     flex-direction: column;
     width : 21.69rem;
     height: 7.375rem;
-    padding: 0 0.625rem 0.625rem 0.625rem;
+    padding: 0.625rem 0.625rem 0 0.625rem;
     box-sizing: border-box;
     background-image: url(${({ bg }) => bg || ""});
     background-size: cover;
@@ -177,50 +180,62 @@ const ListBox = styled.div`
     flex-shrink: 0;
     border-radius: 1.25rem;
     border: 2px solid #E5E5E5;
+    justify-content: flex-end;
+    background: 
+    linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%), 
+    url(${props => props.bg || ""}) no-repeat center center / cover, 
+    lightgray; 
 `
 
 const ListFooter = styled.div`
     display : flex;
     flex-direction: column;
-    margin-top : 1.56rem;
+    padding-bottom: 0.4rem;
+    gap: 0.2rem;
 `
 
-const StarContainer = styled.div`
-    display : flex;
-    justify-content: center;
-    width: 1.9375rem;
-    height: 3.1875rem;
-    fill: rgba(255, 255, 255, 0.50);
-    border-radius: 0 0 0.5rem 0.5rem;
-    background-color: red;
-    margin-left : 0.435rem;
+const BookM = styled.div`
+  width: 1.9375rem;
+  height: 3.1875rem;
+  position: absolute;
+  left: 1.0625rem;
+  fill: rgba(255, 255, 255, 0.50);
+  backdrop-filter: blur(5px);
+  top: 0rem;       
+  z-index: 2;       
+  border-width: 0.5px;
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.4);
+  border-top: none;
+  display: flex;    
+  align-items: flex-end;
+  padding-bottom: 6px;
+  box-sizing: border-box;
+  justify-content: center; 
+  border-radius: 0 0 10px 10px;
 `
 
 const Title = styled.h3`
-  color : #FFFF;
-  font-size: clamp(0.9rem, 2vw, 1.1rem);
-  font-family: "TJJoyofsingingB";
-  margin: 0;
+  color: #111;
+font-family: "TJ Joy of singing TTF";
+font-size: 0.9375rem;
+font-style: normal;
+font-weight: 500;
+line-height: normal;
+margin: 0;
 `;
 
 const Subtitle = styled.p`
-  color: #FFFF;
-  margin : 0;
-  font-size: 0.8125rem;
-  font-style: normal;
-  font-weight: 300;
-  line-height: normal;
-  font-family: "TJJoyofsingingB";
+  color: #111;
+font-family: "TJ Joy of singing TTF";
+font-size: 0.75rem;
+font-style: normal;
+font-weight: 300;
+line-height: normal;
+margin: 0;
 `;
 
-const Star = styled(FaStar)`
-  margin-top: 1rem;
-  width: 19px;
-  height: 19px;
-  border-radius: 0.1rem;
-  fill: ${({ $active }) => ($active ? "#FFEB34" : "rgba(255,255,255,0.5)")};
-`;
-export default function Main(){
+export default function Main() {
 
   const [festivalList, setFestivalList] = useState([]);
   const [monthfestivalList, setMonthfestivalList] = useState([]);
@@ -228,13 +243,13 @@ export default function Main(){
   const navigate = useNavigate();
   const [value, setValue] = useState(new Date());
   const [loading, setLoading] = useState(true);
-  const [topdata , setTopdata] = useState([]);
+  const [topdata, setTopdata] = useState([]);
 
 
-   
 
 
-    const handleCalendar = async (year, month, date) => {
+
+  const handleCalendar = async (year, month, date) => {
     try {
       const response = await axiosInstance.get(`/calendar/by-date`, {
         params: { year: Number(year), month: Number(month), date: Number(date) }
@@ -254,10 +269,10 @@ export default function Main(){
     }
   };
 
-  
 
 
-    const handleMonthCalendar = async (year, month) => {
+
+  const handleMonthCalendar = async (year, month) => {
     try {
       const response = await axiosInstance.get(`/calendar/by-month`, {
         params: { year, month },
@@ -271,21 +286,21 @@ export default function Main(){
   };
 
   const handleBookmark = async (festivalId) => {
-  try {
-    const response = await axiosInstance.post(`/bookmarks`, {
-      festivalId: festivalId
-    });
+    try {
+      const response = await axiosInstance.post(`/bookmarks`, {
+        festivalId: festivalId
+      });
 
-    console.log("북마크 등록 성공:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("북마크 등록 실패:", error.response?.data || error.message);
-    throw error;
-  }
-};
+      console.log("북마크 등록 성공:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("북마크 등록 실패:", error.response?.data || error.message);
+      throw error;
+    }
+  };
 
 
-   const isSameOrBetween = (date, startStr, endStr) => {
+  const isSameOrBetween = (date, startStr, endStr) => {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, "0");
     const d = String(date.getDate()).padStart(2, "0");
@@ -309,32 +324,32 @@ export default function Main(){
     return null;
   };
 
-    const toggleStar = (festivalId) => {
-      // UI 먼저 바꾸기
-      setActiveStars(prev => ({
-        ...prev,
-        [festivalId]: !prev[festivalId]
-      }));
+  const toggleStar = (festivalId) => {
+    // UI 먼저 바꾸기
+    setActiveStars(prev => ({
+      ...prev,
+      [festivalId]: !prev[festivalId]
+    }));
 
-      // 서버 요청, 실패해도 UI는 유지
-      handleBookmark(festivalId)
-        .then(res => console.log("북마크 등록 성공:", res))
-        .catch(err => console.error("북마크 등록 실패:", err));
-    };
+    // 서버 요청, 실패해도 UI는 유지
+    handleBookmark(festivalId)
+      .then(res => console.log("북마크 등록 성공:", res))
+      .catch(err => console.error("북마크 등록 실패:", err));
+  };
 
-    const fetchTop = async () => {
-      try {
-        setLoading(true);
-        const response = await axiosInstance.get(`/calendar/popular`);
-        setTopdata(response.data?.data || []); // 배열만 세팅
-        console.log("Top 5", response.data);
-      } catch (err) {
-        console.error("top 5데이터 불러오기 실패:", err);
-        setTopdata([]); // 실패 시에도 배열 유지
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchTop = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(`/calendar/popular`);
+      setTopdata(response.data?.data || []); // 배열만 세팅
+      console.log("Top 5", response.data);
+    } catch (err) {
+      console.error("top 5데이터 불러오기 실패:", err);
+      setTopdata([]); // 실패 시에도 배열 유지
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
 
@@ -346,91 +361,91 @@ export default function Main(){
   }, []); // 첫 렌더링 시 실행
 
 
-  
 
 
-    return(
-        <Container>
-            <Header>축제 달력</Header>
-            <CalendarWrap>
-                <Calendar
-                onChange={(newDate) => {
-                  setValue(newDate);
-                  handleCalendar(newDate.getFullYear(), newDate.getMonth() + 1, newDate.getDate());
-                }}
-                onActiveStartDateChange={({ activeStartDate }) => {
-                  handleMonthCalendar(activeStartDate.getFullYear(), activeStartDate.getMonth() + 1);
-                }}
-                value={value}
-                tileClassName={getTileClassName}
-                tileContent={({ date, view }) =>
-                  view === "month" ? (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", fontSize: "0.8rem" }}>
-                      <span>{date.getDate()}</span>
-                      {getFestivalCountForDate(date) > 0 && (
-                        <span style={{ fontSize: "0.6rem", color: "#32885D", marginTop: 2 }}>
-                          {getFestivalCountForDate(date)}
-                        </span>
-                      )}
-                    </div>
-                  ) : null
-                }
-              />
-            </CalendarWrap>
-            <HeaderContainer>
-                <HeaderTwo>{festivalList.length > 0 ? "축제 리스트" : "인기 축제"}</HeaderTwo>
-            </HeaderContainer>
-            <ListContainer>
-            {festivalList.length > 0
-              ? festivalList.map((fest, idx) => (
-                  <ListBox
-                    key={fest.festivalId || idx}
-                    bg={fest.imagePath}
-                    onClick={() =>
-                      navigate("/detail", { state: { festivalId: fest.festivalId } })
-                    }
-                  >
-                    <StarContainer
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleStar(fest.festivalId);
-                      }}
-                    >
-                      <Star $active={!!activeStars[fest.festivalId]} />
-                    </StarContainer>
-                    <ListFooter>
-                      <Title>{fest.festivalName}</Title>
-                      <Subtitle>
-                        {`${fest.festivalStart} ~ ${fest.festivalEnd}`}
-                      </Subtitle>
-                    </ListFooter>
-                  </ListBox>
-                ))
-              : (topdata || []).map((fest, idx) => (
-                  <ListBox
-                    key={fest.festivalId || idx}
-                    bg={fest.imagePath}
-                    onClick={() =>
-                      navigate("/detail", { state: { festivalId: fest.festivalId } })
-                    }
-                  >
-                    <StarContainer
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleStar(fest.festivalId);
-                      }}
-                    >
-                      <Star $active={!!activeStars[fest.festivalId]} />
-                    </StarContainer>
-                    <ListFooter>
-                      <Title>{fest.festivalName}</Title>
-                      <Subtitle>
-                        {`${fest.festivalStart} ~ ${fest.festivalEnd}`}
-                      </Subtitle>
-                    </ListFooter>
-                  </ListBox>
-                ))}
-          </ListContainer>
-        </Container>
-    )
+
+  return (
+    <Container>
+      <Header>축제 달력</Header>
+      <CalendarWrap>
+        <Calendar
+          onChange={(newDate) => {
+            setValue(newDate);
+            handleCalendar(newDate.getFullYear(), newDate.getMonth() + 1, newDate.getDate());
+          }}
+          onActiveStartDateChange={({ activeStartDate }) => {
+            handleMonthCalendar(activeStartDate.getFullYear(), activeStartDate.getMonth() + 1);
+          }}
+          value={value}
+          tileClassName={getTileClassName}
+          tileContent={({ date, view }) =>
+            view === "month" ? (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", fontSize: "0.8rem" }}>
+                <span>{date.getDate()}</span>
+                {getFestivalCountForDate(date) > 0 && (
+                  <span style={{ fontSize: "0.6rem", color: "#32885D", marginTop: 2 }}>
+                    {getFestivalCountForDate(date)}
+                  </span>
+                )}
+              </div>
+            ) : null
+          }
+        />
+      </CalendarWrap>
+      <HeaderContainer>
+        <HeaderTwo>{festivalList.length > 0 ? "축제 리스트" : "인기 축제"}</HeaderTwo>
+      </HeaderContainer>
+      <ListContainer>
+        {festivalList.length > 0
+          ? festivalList.map((fest, idx) => (
+            <ListBox
+              key={fest.festivalId || idx}
+              bg={fest.imagePath}
+              onClick={() =>
+                navigate("/detail", { state: { festivalId: fest.festivalId } })
+              }
+            >
+              <BookM onClick={(e) => {
+                e.stopPropagation();
+                toggleStar(fest.festivalId);
+              }}>
+                {activeStars[fest.festivalId]
+                  ? <S width={22} height={22} />
+                  : <Ss width={22} height={22} />}
+              </BookM>
+              <ListFooter>
+                <Title>{fest.festivalName}</Title>
+                <Subtitle>
+                  {`${fest.festivalStart} ~ ${fest.festivalEnd}`}
+                </Subtitle>
+              </ListFooter>
+            </ListBox>
+          ))
+          : (topdata || []).map((fest, idx) => (
+            <ListBox
+              key={fest.festivalId || idx}
+              bg={fest.imagePath}
+              onClick={() =>
+                navigate("/detail", { state: { festivalId: fest.festivalId } })
+              }
+            >
+              <BookM onClick={(e) => {
+                e.stopPropagation();
+                toggleStar(fest.festivalId);
+              }}>
+                {activeStars[fest.festivalId]
+                  ? <S width={22} height={22} />
+                  : <Ss width={22} height={22} />}
+              </BookM>
+              <ListFooter>
+                <Title>{fest.festivalName}</Title>
+                <Subtitle>
+                  {`${fest.festivalStart} ~ ${fest.festivalEnd}`}
+                </Subtitle>
+              </ListFooter>
+            </ListBox>
+          ))}
+      </ListContainer>
+    </Container>
+  )
 }
