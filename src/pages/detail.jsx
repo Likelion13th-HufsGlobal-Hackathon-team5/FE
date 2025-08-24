@@ -97,8 +97,10 @@ const Img = styled.div`
     width: 20.5rem;
     height: 12.3125rem;
     border-radius: 0.625rem;
-    background-color: skyblue;
     margin-top: 0.62rem;
+    background-image: url(${props => props.src || ""});
+    background-size: cover;
+    background-position: center;
 `
 
 const IntroTitle = styled.h3`
@@ -236,7 +238,7 @@ export default function Detail(){
                 </TitleContainer>
                 <DayText>{festivalData.festivalStart} - {festivalData.festivalEnd}</DayText>
                 <RegText>{festivalData.festivalLoca}</RegText>
-                <Img />
+                <Img src={festivalData.imagePath}/>
                 <IntroTitle>소개</IntroTitle>
                 <IntroDetail>
                     {festivalData.festivalDesc}

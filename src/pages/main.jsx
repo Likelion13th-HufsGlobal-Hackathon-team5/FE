@@ -6,6 +6,7 @@ import "react-calendar/dist/Calendar.css";
 import { FaStar } from "react-icons/fa";
 import axiosInstance from "../AxiosInstance";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const Container = styled.div`
   display: flex;
@@ -169,7 +170,10 @@ const ListBox = styled.div`
     height: 7.375rem;
     padding: 0 0.625rem 0.625rem 0.625rem;
     box-sizing: border-box;
-    background-color: #7b7b7b;
+    background-image: url(${({ bg }) => bg || ""});
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     flex-shrink: 0;
     border-radius: 1.25rem;
     border: 2px solid #E5E5E5;
@@ -218,10 +222,11 @@ const Star = styled(FaStar)`
 `;
 export default function Main(){
 
-    const [value, setValue] = useState(new Date(2025, 0, 1));
-    const [festivalList, setFestivalList] = useState([]);
-    const [activeStars, setActiveStars] = useState({});
-    const navigate = useNavigate();
+  const [festivalList, setFestivalList] = useState([]);
+  const [monthfestivalList, setMonthfestivalList] = useState([]);
+  const [activeStars, setActiveStars] = useState({});
+  const navigate = useNavigate();
+  const [value, setValue] = useState(new Date());
 
 
 
@@ -245,42 +250,8 @@ export default function Main(){
     new Date(2025, 0, 31)  // 1월 31일36
   ];
 
-  const isDataDate = dataDates.some(d => d.toDateString() === value.toDateString());
 
-  // tileClassName → 날짜별로 클래스 부여
-  const getTileClassName = ({ date, view }) => {
-    if (view === "month") {
-      // 선택된 날짜
-      if (value && date.toDateString() === value.toDateString()) {
-        return "selected-day";
-      }
-      // 데이터 있는 날짜
-      if (dataDates.some(d => d.toDateString() === date.toDateString())) {
-        return "data-day";
-      }
-    }
-    return null;
-  };
-
-    const toggleStar = async (festivalId) => {
-      setActiveStars((prev) => ({
-        ...prev,
-        [festivalId]: !prev[festivalId], // 먼저 UI 변경
-      }));
-
-      try {
-        await handleBookmark(festivalId);
-      } catch (error) {
-        // 실패 시 원상 복구
-        setActiveStars((prev) => ({
-          ...prev,
-          [festivalId]: !prev[festivalId],
-        }));
-      }
-    };
-
-
-  const handleCalendar = async (year, month, date) => {
+    const handleCalendar = async (year, month, date) => {
     try {
       const response = await axiosInstance.get(`/calendar`, {
         params: { year: Number(year), month: Number(month), date: Number(date) }
@@ -300,6 +271,22 @@ export default function Main(){
     }
   };
 
+  
+
+
+    const handleMonthCalendar = async (year, month) => {
+    try {
+      const response = await axiosInstance.get(`/calendar/by-month`, {
+        params: { year, month },
+      });
+      // 여기서 data 배열로 state 업데이트
+      setMonthfestivalList(response.data?.data || []);
+    } catch (error) {
+      console.error(error);
+      setMonthfestivalList([]);
+    }
+  };
+
   const handleBookmark = async (festivalId) => {
   try {
     const response = await axiosInstance.post(`/bookmarks`, {
@@ -314,28 +301,80 @@ export default function Main(){
   }
 };
 
+  const isDataDate = dataDates.some(d => d.toDateString() === value.toDateString());
+
+   const isSameOrBetween = (date, startStr, endStr) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    const dateStr = `${y}-${m}-${d}`;
+    return dateStr >= startStr && dateStr <= endStr;
+  };
+
+  const getFestivalCountForDate = (date) => {
+    return monthfestivalList.reduce(
+      (count, fest) => (isSameOrBetween(date, fest.festivalStart, fest.festivalEnd) ? count + 1 : count),
+      0
+    );
+  };
+
+  const getTileClassName = ({ date, view }) => {
+    // 선택된 날짜만 강조
+    if (view === "month" && value.toDateString() === date.toDateString()) {
+      return "selected-day";
+    }
+    // data-day 관련 로직 제거
+    return null;
+  };
+
+    const toggleStar = (festivalId) => {
+      // UI 먼저 바꾸기
+      setActiveStars(prev => ({
+        ...prev,
+        [festivalId]: !prev[festivalId]
+      }));
+
+      // 서버 요청, 실패해도 UI는 유지
+      handleBookmark(festivalId)
+        .then(res => console.log("북마크 등록 성공:", res))
+        .catch(err => console.error("북마크 등록 실패:", err));
+    };
+
+
+
+  useEffect(() => {
+    const today = new Date();
+    handleMonthCalendar(today.getFullYear(), today.getMonth() + 1);
+  }, []); // 첫 렌더링 시 실행
+
+
     return(
         <Container>
             <Header>축제 달력</Header>
             <CalendarWrap>
                 <Calendar
-                  onChange={(newDate) => {
-                    setValue(newDate);
-                    const year = newDate.getFullYear();
-                    const month = newDate.getMonth() + 1; // JS 월은 0부터 시작
-                    const date = newDate.getDate();
-                    handleCalendar(year, month, date);
-                  }}
-                  value={value}
-                  tileClassName={getTileClassName}
-                  tileContent={({ date, view }) =>
-                    view === "month" ? (
-                      <div style={{ fontSize: "1rem", fontWeight: 500 }}>
-                        {date.getDate()}
-                      </div>
-                    ) : null
-                  }
-                />
+                onChange={(newDate) => {
+                  setValue(newDate);
+                  handleCalendar(newDate.getFullYear(), newDate.getMonth() + 1, newDate.getDate());
+                }}
+                onActiveStartDateChange={({ activeStartDate }) => {
+                  handleMonthCalendar(activeStartDate.getFullYear(), activeStartDate.getMonth() + 1);
+                }}
+                value={value}
+                tileClassName={getTileClassName}
+                tileContent={({ date, view }) =>
+                  view === "month" ? (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", fontSize: "0.8rem" }}>
+                      <span>{date.getDate()}</span>
+                      {getFestivalCountForDate(date) > 0 && (
+                        <span style={{ fontSize: "0.6rem", color: "#32885D", marginTop: 2 }}>
+                          {getFestivalCountForDate(date)}
+                        </span>
+                      )}
+                    </div>
+                  ) : null
+                }
+              />
             </CalendarWrap>
             <HeaderContainer>
                 <HeaderTwo>{festivalList.length > 0 ? "축제 리스트" : "인기 축제"}</HeaderTwo>
@@ -343,18 +382,14 @@ export default function Main(){
             <ListContainer>
               {festivalList.length > 0
                 ? festivalList.map((fest, idx) => (
-                    <ListBox key={fest.festivalId || idx} onClick={() => 
+                    <ListBox key={fest.festivalId || idx} bg={fest.imagePath} onClick={() => 
                         navigate("/detail", { state: { festivalId: fest.festivalId } })
                       }>
-                      <StarContainer onClick={() => toggleStar(idx)}>
-                          <Star
-                            $active={activeStars[fest.festivalId] || false}
-                            onClick={
-                              activeStars[fest.festivalId]
-                                ? undefined // 이미 활성화된 경우 클릭 불가
-                                : () => toggleStar(fest.festivalId)
-                            }
-                          />
+                      <StarContainer onClick={(e) => {
+                        e.stopPropagation();
+                        toggleStar(fest.festivalId);
+                      }}>
+                        <Star $active={!!activeStars[fest.festivalId]} />
                       </StarContainer>
                       <ListFooter>
                         <Title>{fest.festivalName}</Title>
@@ -365,16 +400,15 @@ export default function Main(){
                     </ListBox>
                   ))
                 : festivals.map((fest, idx) => (
-                    <ListBox key={idx}>
-                      <StarContainer onClick={() => toggleStar(idx)}>
-                        <Star
-                          $active={activeStars[fest.festivalId] || false}
-                          onClick={
-                            activeStars[fest.festivalId]
-                              ? undefined // 이미 활성화된 경우 클릭 불가
-                              : () => toggleStar(fest.festivalId)
-                          }
-                        />
+                    <ListBox 
+                      key={idx}
+                      bg={fest.imagePath}
+                    >
+                      <StarContainer onClick={(e) => {
+                        e.stopPropagation();
+                        toggleStar(fest.festivalId);
+                      }}>
+                        <Star $active={!!activeStars[fest.festivalId]} />
                       </StarContainer>
                       <ListFooter>
                         <Title>{fest.name}</Title>
