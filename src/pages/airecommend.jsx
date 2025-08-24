@@ -2,10 +2,30 @@
 import React, { useEffect, useMemo, useState } from "react";
 import bgImage from "../assets/signup-bg.png";
 import styled from "styled-components";
-import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import axiosInstance from "../AxiosInstance";
+import useEmblaCarousel from "embla-carousel-react";
+import { ReactComponent as Go } from "../assets/go.svg"
+import { useNavigate } from "react-router-dom";
+
+const useMultipleCarousel = () => {
+  const options = {};
+
+  const emblas = [
+    useEmblaCarousel(options)[0],
+    useEmblaCarousel(options)[0],
+    useEmblaCarousel(options)[0],
+    useEmblaCarousel(options)[0],
+    useEmblaCarousel(options)[0],
+    useEmblaCarousel(options)[0],
+    useEmblaCarousel(options)[0],
+    useEmblaCarousel(options)[0],
+    useEmblaCarousel(options)[0],
+  ]
+
+  return emblas;
+};
 
 // 이미지가 /images/... 식으로 오면 API ORIGIN을 붙여서 절대경로로
 const API_ORIGIN = (() => {
@@ -15,6 +35,8 @@ const toAbs = (p) => (p && !p.startsWith("http") ? `${API_ORIGIN}${p}` : p);
 
 export default function AiRecommendation() {
   const [items, setItems] = useState([]);
+  const carousels = useMultipleCarousel();
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
@@ -94,6 +116,7 @@ export default function AiRecommendation() {
     centerMode: false,
     draggable: true,
     swipeToSlide: true,
+
     responsive: [
       { breakpoint: 768, settings: { slidesToShow: 1.2 } },
       { breakpoint: 1024, settings: { slidesToShow: 2.5 } },
@@ -109,8 +132,8 @@ export default function AiRecommendation() {
           <Card key={idx}>
             <Title>{card.title}</Title>
             <Subtitle>{card.subtitle}</Subtitle>
-            <ImageSlider>
-              <Slider {...sliderSettings}>
+            <Carousel ref={carousels[idx]}>
+              <CarouselContainer>
                 {card.list.length > 0
                   ? card.list.map((it, n) => (
                     <ImageBox key={`${it.festivalId}-${n}`}>
@@ -140,12 +163,15 @@ export default function AiRecommendation() {
                         <InfoContianer>
                           <FestivalName>풍선 축제</FestivalName>
                           <Date>2025.07.30 ~ 08.20</Date>
+                          <Arrow onClick={() => navigate(`/detail/${it.festival.festivalId}`)}>
+                            <Go />
+                          </Arrow>
                         </InfoContianer>
                       </ImagePlaceholder>
                     </ImageBox>
                   ))}
-              </Slider>
-            </ImageSlider>
+              </CarouselContainer>
+            </Carousel>
           </Card>
         ))}
       </CardContainer>
@@ -198,18 +224,12 @@ const CardContainer = styled.div`
 `;
 
 const Card = styled.div`
-  height : 16.44rem;
-  padding: 0.8rem;
+  padding: 0.6rem;
   margin-top: 1rem;
   border-radius: 0.5rem;
   border: 1.5px solid #A9A9A9;
   background: #FCFAF0;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
-
-  @media (min-width: 768px) {
-    padding:0.62rem;
-    padding-bottom: 0;
-  }
 `;
 
 const Title = styled.h3`
@@ -233,25 +253,22 @@ const Subtitle = styled.p`
   margin: 0.2rem 0 0.6rem 0;
 `;
 
-// const ImageSlider = styled.div`
-//  margin-bottom: 0.5rem;
+const Carousel = styled.div`
+  overflow: hidden;
+  height: 100%;
+`;
 
-//   .slick-list { height: auto !important; }
-//   .slick-slide { padding-right: 0.5rem; }
-// `;
-
-const ImageSlider = styled.div`
-  margin-bottom: 0.5rem;
-  .slick-list {
-    overflow: hidden;
-  }
-  .slick-slide {
-    padding: 0 5px; /* 슬라이드 사이의 간격을 만듭니다 */
-  }
+const CarouselContainer = styled.div`
+  display: flex;
+  column-gap: 10px;
 `;
 
 const ImageBox = styled.div`
-  height: clamp(10px, 10vw, 140px);
+  flex: 1;
+  flex-basis: 200px;
+  flex-shrink: 0;
+  height: 100%;
+  position: relative;
 `;
 
 const ImagePlaceholder = styled.div`
@@ -263,7 +280,8 @@ const ImagePlaceholder = styled.div`
   align-items: end;
   border-radius: 1.25rem;
   border: 1.5px solid #A9A9A9;
-  background: linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%), url(<path-to-image>) lightgray 50% / cover no-repeat;
+  width: 18.1875rem;
+  background: linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%), url() lightgray 50% / cover no-repeat;
 `;
 
 const InfoContianer = styled.div`
@@ -285,4 +303,14 @@ const Date = styled.span`
   font-weight: 300;
   line-height: normal;
   font-family: "TJJoyofsingingL";
+`;
+
+const Arrow = styled.div`
+    position: absolute;
+    bottom: 0.37rem;
+    right: 0.37rem;
+    border-radius: 50%;
+    width: 1.75rem;
+    height: 1.75rem;
+    cursor: pointer;
 `;
