@@ -63,6 +63,14 @@ export default function Login() {
     }
   };
 
+const handleKeyDown = (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    if (!loading) handleLogin();
+  }
+};
+
+
 
 
   return (
@@ -79,12 +87,14 @@ export default function Login() {
             placeholder="아이디를 입력해 주세요."
             value={Id}
             onChange={(e) => setId(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
           <InputBox
             type="password"
             placeholder="비밀번호를 입력해 주세요."
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
         </Form>
 
