@@ -9,7 +9,7 @@ import bgImage from "../assets/signup-bg.png";
 import yong from "../assets/login-yong.png";
 import cloud from "../assets/구름.png";
 import miniCloud from "../assets/미니구름.png";
-import titleImg from "../assets/요기용in.svg";
+import titleImg from "../assets/요기용in.svg";
 
 /* === Fonts === */
 import JoyB from "../fonts/TJJoyofsingingB_TTF.ttf"; // Bold

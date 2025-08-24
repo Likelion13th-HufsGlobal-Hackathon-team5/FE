@@ -161,8 +161,10 @@ function ReviewPage() {
     reviewTitle : title,
     reviewCont : content
     });
-
+      console.log("리뷰 작성 후 토큰:", localStorage.getItem("accessToken"));
       console.log("업로드 성공:", response.data);
+      await new Promise((res) => setTimeout(res, 500));
+
       alert("리뷰가 성공적으로 등록되었습니다!");
       navigate(-1); 
     } catch (error) {

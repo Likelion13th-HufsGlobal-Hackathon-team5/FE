@@ -139,8 +139,10 @@ const ReviewPage = () => {
 
   const token = localStorage.getItem("accessToken"); // 로그인 시 저장한 토큰
   axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-  console.log("토큰 확인:", token);
+  console.log(festivalId);
+  console.log(token);
+  
+  
 
 useEffect(() => {
   const fetchReviewData = async () => {
@@ -154,7 +156,7 @@ useEffect(() => {
         }
       });
       setData(response.data);
-      console.log(response.data);
+      console.log("우효" , response.data);
     } catch (err) {
       console.error("요약 불러오기 실패:", err.response?.data || err.message);
     } finally {
