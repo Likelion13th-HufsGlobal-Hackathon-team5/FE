@@ -227,33 +227,16 @@ export default function Main(){
   const [activeStars, setActiveStars] = useState({});
   const navigate = useNavigate();
   const [value, setValue] = useState(new Date());
+  const [loading, setLoading] = useState(true);
+  const [topdata , setTopdata] = useState([]);
 
-
-
-     const festivals = [
-    { name: "풍선 축제", period: "2025.07.30 ~ 08.20" },
-    { name: "바다 축제", period: "2025.08.05 ~ 08.15" },
-    { name: "불꽃 축제", period: "2025.09.01 ~ 09.05" },
-    { name: "가을 단풍 축제", period: "2025.10.10 ~ 10.20" }
-  ];
-
-       const listfestivals = [
-    { name: "리스트 풍선 축제", period: "2025.07.30 ~ 08.20" },
-    { name: "리스트 바다 축제", period: "2025.08.05 ~ 08.15" },
-    { name: "리스트 불꽃 축제", period: "2025.09.01 ~ 09.05" },
-    { name: "리스트 가을 단풍 축제", period: "2025.10.10 ~ 10.20" }
-  ];
 
    
-  const dataDates = [
-    new Date(2025, 0, 30), // 1월 30일
-    new Date(2025, 0, 31)  // 1월 31일36
-  ];
 
 
     const handleCalendar = async (year, month, date) => {
     try {
-      const response = await axiosInstance.get(`/calendar`, {
+      const response = await axiosInstance.get(`/calendar/by-date`, {
         params: { year: Number(year), month: Number(month), date: Number(date) }
       });
 
@@ -301,7 +284,6 @@ export default function Main(){
   }
 };
 
-  const isDataDate = dataDates.some(d => d.toDateString() === value.toDateString());
 
    const isSameOrBetween = (date, startStr, endStr) => {
     const y = date.getFullYear();
@@ -340,12 +322,31 @@ export default function Main(){
         .catch(err => console.error("북마크 등록 실패:", err));
     };
 
+    const fetchTop = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get(`/calendar/popular`);
+        setTopdata(response.data?.data || []); // 배열만 세팅
+        console.log("Top 5", response.data);
+      } catch (err) {
+        console.error("top 5데이터 불러오기 실패:", err);
+        setTopdata([]); // 실패 시에도 배열 유지
+      } finally {
+        setLoading(false);
+      }
+    };
+
+
 
 
   useEffect(() => {
     const today = new Date();
     handleMonthCalendar(today.getFullYear(), today.getMonth() + 1);
+    fetchTop();
   }, []); // 첫 렌더링 시 실행
+
+
+  
 
 
     return(
@@ -380,43 +381,56 @@ export default function Main(){
                 <HeaderTwo>{festivalList.length > 0 ? "축제 리스트" : "인기 축제"}</HeaderTwo>
             </HeaderContainer>
             <ListContainer>
-              {festivalList.length > 0
-                ? festivalList.map((fest, idx) => (
-                    <ListBox key={fest.festivalId || idx} bg={fest.imagePath} onClick={() => 
-                        navigate("/detail", { state: { festivalId: fest.festivalId } })
-                      }>
-                      <StarContainer onClick={(e) => {
+            {festivalList.length > 0
+              ? festivalList.map((fest, idx) => (
+                  <ListBox
+                    key={fest.festivalId || idx}
+                    bg={fest.imagePath}
+                    onClick={() =>
+                      navigate("/detail", { state: { festivalId: fest.festivalId } })
+                    }
+                  >
+                    <StarContainer
+                      onClick={(e) => {
                         e.stopPropagation();
                         toggleStar(fest.festivalId);
-                      }}>
-                        <Star $active={!!activeStars[fest.festivalId]} />
-                      </StarContainer>
-                      <ListFooter>
-                        <Title>{fest.festivalName}</Title>
-                        <Subtitle>
-                          {`${fest.festivalStart} ~ ${fest.festivalEnd}`}
-                        </Subtitle>
-                      </ListFooter>
-                    </ListBox>
-                  ))
-                : festivals.map((fest, idx) => (
-                    <ListBox 
-                      key={idx}
-                      bg={fest.imagePath}
+                      }}
                     >
-                      <StarContainer onClick={(e) => {
+                      <Star $active={!!activeStars[fest.festivalId]} />
+                    </StarContainer>
+                    <ListFooter>
+                      <Title>{fest.festivalName}</Title>
+                      <Subtitle>
+                        {`${fest.festivalStart} ~ ${fest.festivalEnd}`}
+                      </Subtitle>
+                    </ListFooter>
+                  </ListBox>
+                ))
+              : (topdata || []).map((fest, idx) => (
+                  <ListBox
+                    key={fest.festivalId || idx}
+                    bg={fest.imagePath}
+                    onClick={() =>
+                      navigate("/detail", { state: { festivalId: fest.festivalId } })
+                    }
+                  >
+                    <StarContainer
+                      onClick={(e) => {
                         e.stopPropagation();
                         toggleStar(fest.festivalId);
-                      }}>
-                        <Star $active={!!activeStars[fest.festivalId]} />
-                      </StarContainer>
-                      <ListFooter>
-                        <Title>{fest.name}</Title>
-                        <Subtitle>{fest.period}</Subtitle>
-                      </ListFooter>
-                    </ListBox>
-                  ))}
-            </ListContainer>
+                      }}
+                    >
+                      <Star $active={!!activeStars[fest.festivalId]} />
+                    </StarContainer>
+                    <ListFooter>
+                      <Title>{fest.festivalName}</Title>
+                      <Subtitle>
+                        {`${fest.festivalStart} ~ ${fest.festivalEnd}`}
+                      </Subtitle>
+                    </ListFooter>
+                  </ListBox>
+                ))}
+          </ListContainer>
         </Container>
     )
 }
