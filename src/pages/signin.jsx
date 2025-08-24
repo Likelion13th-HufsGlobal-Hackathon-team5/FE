@@ -2,8 +2,9 @@ import axios from "axios";
 // src/pages/signin.jsx
 import React, { useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { useNavigate } from "react-router-dom";
 import bgImage from "../assets/signup-bg.png";
+import { useNavigate } from "react-router-dom";
+import bb from "../assets/back.svg"
 
 /* === 이미지 import (뒤로가기 아이콘) === */
 import backIcon from "../assets/back.svg";
@@ -108,9 +109,9 @@ export default function Signin() {
   const [signupLoading, setSignupLoading] = useState(false);
 
   // 토큰 반환값 //
-  const [IdToken , setIdtoken] = useState("");
-  const [NameToken , setNametoken] = useState("");
-  
+  const [IdToken, setIdtoken] = useState("");
+  const [NameToken, setNametoken] = useState("");
+
 
   // // ===== 닉네임 중복 확인(목) =====
   // const checkNickAvailability = async () => {
@@ -143,109 +144,109 @@ export default function Signin() {
   // };
 
   const mockdata = {
-        userId : id,
-        password : password,
-        passwordConfirm : password,
-        nickname : nickname,
-        birthYear : birthyear,
-        idCheckToken : IdToken,
-        nickCheckToken : NameToken
+    userId: id,
+    password: password,
+    passwordConfirm: password,
+    nickname: nickname,
+    birthYear: birthyear,
+    idCheckToken: IdToken,
+    nickCheckToken: NameToken
+  }
+
+  // ============================
+  // 토큰 반환 + 회원가입 통합
+  // ============================
+
+  // 닉네임 중복 확인
+  const handleCheckName = async () => {
+    setNickLoading(true);
+    setError("");
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/auth/nick-check`,
+        { nickname }
+      );
+      const { success, data, message } = response.data;
+
+      if (success && data?.available) {
+        setIsNickAvailable(true);
+        setNametoken(data.token);
+      } else {
+        setIsNickAvailable(false);
+        setError(message || "닉네임 중복 확인 실패");
       }
-
-// ============================
-// 토큰 반환 + 회원가입 통합
-// ============================
-
-// 닉네임 중복 확인
-const handleCheckName = async () => {
-  setNickLoading(true);
-  setError("");
-  try {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/auth/nick-check`,
-      { nickname }
-    );
-    const { success, data, message } = response.data;
-
-    if (success && data?.available) {
-      setIsNickAvailable(true);
-      setNametoken(data.token);
-    } else {
+      return data?.token || null;
+    } catch (err) {
+      console.error(err);
       setIsNickAvailable(false);
-      setError(message || "닉네임 중복 확인 실패");
+      setError("닉네임 중복 확인 중 오류가 발생했습니다.");
+      return null;
+    } finally {
+      setNickLoading(false);
     }
-    return data?.token || null;
-  } catch (err) {
-    console.error(err);
-    setIsNickAvailable(false);
-    setError("닉네임 중복 확인 중 오류가 발생했습니다.");
-    return null;
-  } finally {
-    setNickLoading(false);
-  }
-};
+  };
 
-// 아이디 중복 확인
-const handleCheckId = async () => {
-  setIdLoading(true);
-  setError("");
-  try {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/auth/id-check`,
-      { userId: id }
-    );
-    const { success, data, message } = response.data;
+  // 아이디 중복 확인
+  const handleCheckId = async () => {
+    setIdLoading(true);
+    setError("");
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/auth/id-check`,
+        { userId: id }
+      );
+      const { success, data, message } = response.data;
 
-    if (success && data?.available) {
-      setIsIdAvailable(true);
-      setIdtoken(data.token);
-    } else {
+      if (success && data?.available) {
+        setIsIdAvailable(true);
+        setIdtoken(data.token);
+      } else {
+        setIsIdAvailable(false);
+        setError(message || "아이디 중복 확인 실패");
+      }
+      return data?.token || null;
+    } catch (err) {
+      console.error(err);
       setIsIdAvailable(false);
-      setError(message || "아이디 중복 확인 실패");
+      setError("아이디 중복 확인 중 오류가 발생했습니다.");
+      return null;
+    } finally {
+      setIdLoading(false);
     }
-    return data?.token || null;
-  } catch (err) {
-    console.error(err);
-    setIsIdAvailable(false);
-    setError("아이디 중복 확인 중 오류가 발생했습니다.");
-    return null;
-  } finally {
-    setIdLoading(false);
-  }
-};
+  };
 
 
-const handleSignIn = async () => {
-  if (!nickname || !id || !password || !birthyear) {
-    setError("모든 필드를 입력해 주세요.");
-    return;
-  }
+  const handleSignIn = async () => {
+    if (!nickname || !id || !password || !birthyear) {
+      setError("모든 필드를 입력해 주세요.");
+      return;
+    }
 
-  // 닉네임/아이디 토큰 가져오기
-  const nickToken = await handleCheckName();
-  const idToken = await handleCheckId();
+    // 닉네임/아이디 토큰 가져오기
+    const nickToken = await handleCheckName();
+    const idToken = await handleCheckId();
 
-  if (!nickToken || !idToken) {
-    setError("닉네임 또는 아이디 중복 확인이 필요합니다.");
-    return;
-  }
+    if (!nickToken || !idToken) {
+      setError("닉네임 또는 아이디 중복 확인이 필요합니다.");
+      return;
+    }
 
-  try {
-    const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/signup`, {
-      userId: id,
-      password,
-      passwordConfirm: password,
-      nickname,
-      birthYear: birthyear,
-      idCheckToken: idToken,
-      nickCheckToken: nickToken,
-    });
-    console.log(response.data);
-  } catch (err) {
-    console.error(err);
-    setError("회원가입 중 오류가 발생했습니다.");
-  }
-};
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/signup`, {
+        userId: id,
+        password,
+        passwordConfirm: password,
+        nickname,
+        birthYear: birthyear,
+        idCheckToken: idToken,
+        nickCheckToken: nickToken,
+      });
+      console.log(response.data);
+    } catch (err) {
+      console.error(err);
+      setError("회원가입 중 오류가 발생했습니다.");
+    }
+  };
 
 
 
@@ -290,11 +291,7 @@ const handleSignIn = async () => {
   return (
     <Container>
       <FontStyles />
-
-      {/* 🔙 뒤로가기 버튼 */}
-      <BackButton onClick={() => navigate("/login")}>
-        <img src={backIcon} alt="뒤로가기" />
-      </BackButton>
+      <BackButton onClick={() => navigate(-1)} />
 
       <Title>회원가입</Title>
       <Form>
@@ -309,7 +306,7 @@ const handleSignIn = async () => {
                 setIsNickAvailable(null);
               }}
             />
-            <CheckButton onClick={handleCheckName}  disabled={nickLoading}>
+            <CheckButton onClick={handleCheckName} disabled={nickLoading}>
               {nickLoading ? "확인중" : <>중복<br />확인</>}
             </CheckButton>
           </IdRow>
@@ -382,9 +379,6 @@ const handleSignIn = async () => {
           )}
         </div>
 
-        {/* 에러 메시지 */}
-        {error && <Error>{error}</Error>}
-
         {/* 가입하기 버튼 */}
         <SignUpButton
           type="button"
@@ -413,10 +407,13 @@ const Container = styled.div`
 `;
 
 const Title = styled.h1`
-  font-size: 3rem;
-  color: #4CAF50;
-  margin-top: 3.75rem;
-  font-family: 'JoyM', sans-serif;
+  color: #35C16D;
+text-align: center;
+font-family: "TJ Joy of singing TTF";
+font-size: 3rem;
+font-style: normal;
+font-weight: 500;
+line-height: normal;
 `;
 
 const Form = styled.div`
@@ -502,19 +499,18 @@ const SignUpButton = styled.button`
   }
 `;
 
-// 뒤로가기 버튼 스타일
 const BackButton = styled.button`
-  background: none;
+    width: 2.5275rem;             
+  height: 2.5275rem;
+  border-radius: 6.25rem;
+  background-image: url(${bb});
+  background-size: cover;  
+  background-position: center;
+  background-repeat: no-repeat;
+  align-self: flex-start;
+  margin: 0.625rem 0 0 0.625rem;
   border: none;
   cursor: pointer;
-  align-self: flex-start;
-  margin-left: 5px;
-  margin-top: -5px;
-
-  img {
-    width: 40px;
-    height: 40px;
-  }
 `;
 
 const Error = styled.p`

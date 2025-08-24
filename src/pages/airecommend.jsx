@@ -113,37 +113,37 @@ export default function AiRecommendation() {
               <Slider {...sliderSettings}>
                 {card.list.length > 0
                   ? card.list.map((it, n) => (
-                      <ImageBox key={`${it.festivalId}-${n}`}>
-                        <ImagePlaceholder
-                          style={
-                            it?.imagePath
-                              ? {
-                                  backgroundImage: `url(${toAbs(it.imagePath)})`,
-                                  backgroundSize: "cover",
-                                  backgroundPosition: "center",
-                                }
-                              : undefined
-                          }
-                        >
-                          <InfoContianer>
-                            <FestivalName>{it?.festivalName ?? "풍선 축제"}</FestivalName>
-                            <Date>
-                              {(it?.festivalStart || "2025.07.30")} ~ {(it?.festivalEnd || "08.20")}
-                            </Date>
-                          </InfoContianer>
-                        </ImagePlaceholder>
-                      </ImageBox>
-                    ))
+                    <ImageBox key={`${it.festivalId}-${n}`}>
+                      <ImagePlaceholder
+                        style={
+                          it?.imagePath
+                            ? {
+                              backgroundImage: `url(${toAbs(it.imagePath)})`,
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                            }
+                            : undefined
+                        }
+                      >
+                        <InfoContianer>
+                          <FestivalName>{it?.festivalName ?? "풍선 축제"}</FestivalName>
+                          <Date>
+                            {(it?.festivalStart || "2025.07.30")} ~ {(it?.festivalEnd || "08.20")}
+                          </Date>
+                        </InfoContianer>
+                      </ImagePlaceholder>
+                    </ImageBox>
+                  ))
                   : [1, 2, 3].map((n) => (
-                      <ImageBox key={n}>
-                        <ImagePlaceholder>
-                          <InfoContianer>
-                            <FestivalName>풍선 축제</FestivalName>
-                            <Date>2025.07.30 ~ 08.20</Date>
-                          </InfoContianer>
-                        </ImagePlaceholder>
-                      </ImageBox>
-                    ))}
+                    <ImageBox key={n}>
+                      <ImagePlaceholder>
+                        <InfoContianer>
+                          <FestivalName>풍선 축제</FestivalName>
+                          <Date>2025.07.30 ~ 08.20</Date>
+                        </InfoContianer>
+                      </ImagePlaceholder>
+                    </ImageBox>
+                  ))}
               </Slider>
             </ImageSlider>
           </Card>
@@ -233,11 +233,21 @@ const Subtitle = styled.p`
   margin: 0.2rem 0 0.6rem 0;
 `;
 
+// const ImageSlider = styled.div`
+//  margin-bottom: 0.5rem;
+
+//   .slick-list { height: auto !important; }
+//   .slick-slide { padding-right: 0.5rem; }
+// `;
+
 const ImageSlider = styled.div`
   margin-bottom: 0.5rem;
-
-  .slick-list { height: auto !important; }
-  .slick-slide { padding-right: 0.5rem; }
+  .slick-list {
+    overflow: hidden;
+  }
+  .slick-slide {
+    padding: 0 5px; /* 슬라이드 사이의 간격을 만듭니다 */
+  }
 `;
 
 const ImageBox = styled.div`
@@ -245,13 +255,15 @@ const ImageBox = styled.div`
 `;
 
 const ImagePlaceholder = styled.div`
-  background: skyblue;
   height: 12.31rem;
   border-radius: 0.8rem;
   padding: 0.625rem;
   display: flex;
   box-sizing: border-box;
   align-items: end;
+  border-radius: 1.25rem;
+  border: 1.5px solid #A9A9A9;
+  background: linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%), url(<path-to-image>) lightgray 50% / cover no-repeat;
 `;
 
 const InfoContianer = styled.div`
