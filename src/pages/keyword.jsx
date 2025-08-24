@@ -5,6 +5,27 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../AxiosInstance";
 import { ReactComponent as Star } from "../assets/kw_star.svg"
+import { ReactComponent as Spring } from "../assets/keyword-icons/1_spring.svg";
+import { ReactComponent as Summer } from "../assets/keyword-icons/2_summer.svg";
+import { ReactComponent as Fall } from "../assets/keyword-icons/3_fall.svg";
+import { ReactComponent as Winter } from "../assets/keyword-icons/4_winter.svg";
+import { ReactComponent as Music } from "../assets/keyword-icons/5_music.svg";
+import { ReactComponent as Food } from "../assets/keyword-icons/6_food.svg";
+import { ReactComponent as History } from "../assets/keyword-icons/7_history.svg";
+import { ReactComponent as Art } from "../assets/keyword-icons/8_art.svg";
+import { ReactComponent as Nature } from "../assets/keyword-icons/9_nature.svg";
+import { ReactComponent as Exp } from "../assets/keyword-icons/10_exp.svg";
+import { ReactComponent as Family } from "../assets/keyword-icons/11_family.svg";
+import { ReactComponent as Night } from "../assets/keyword-icons/12_night.svg";
+import { ReactComponent as Camera } from "../assets/keyword-icons/13_camera.svg";
+import { ReactComponent as Healing } from "../assets/keyword-icons/14_healing.svg";
+import { ReactComponent as Fun } from "../assets/keyword-icons/15_fun.svg";
+import { ReactComponent as Love } from "../assets/keyword-icons/16_love.svg";
+import { ReactComponent as Bar } from "../assets/keyword-icons/17_bar.svg";
+import { ReactComponent as Pet } from "../assets/keyword-icons/18_pet.svg";
+import { ReactComponent as Alone } from "../assets/keyword-icons/19_alone.svg";
+import { ReactComponent as Friends } from "../assets/keyword-icons/20_friends.svg";
+
 
 const Container = styled.div`
   display: flex;
@@ -64,6 +85,7 @@ const Grid = styled.div`
 `;
 
 const KeywordButton = styled.button`
+    position: relative;
     background-color: ${({ selected }) => (selected ? "#FEF5AA" : "#FCFAF0")};
     padding: 0.95rem;
     cursor: pointer;
@@ -78,7 +100,10 @@ const KeywordButton = styled.button`
 `;
 
 const Icon = styled.div`
-  align-self: flex-end;
+    align-self: flex-end;
+    position: absolute; /* 절대 위치 지정 */
+    bottom: 0.7rem;       /* 상단에서 0.95rem 떨어진 위치 */
+    right: 0.95rem;     /* 오른쪽에서 0.95rem 떨어진 위치 */
 `;
 
 const Label = styled.div`
@@ -121,10 +146,28 @@ export default function KeywordSelector() {
   const [selectedIds, setSelectedIds] = useState([]);
   const navigate = useNavigate();
 
-  // const keywordMocking = [
-  //   { id: 1, label: "이유준", icon: "https://www.svgrepo.com/download/373300/mock.svg" },
-  //   { id: 2, label: "이지연", icon: "https://www.svgrepo.com/download/373300/mock.svg" },
-  // ];
+  const iconMap = {
+    1: Spring,
+    2: Summer,
+    3: Fall,
+    4: Winter,
+    5: Music,
+    6: Food,
+    7: History,
+    8: Art,
+    9: Nature,
+    10: Exp,
+    11: Family,
+    12: Night,
+    13: Camera,
+    14: Healing,
+    15: Fun,
+    16: Love,
+    17: Bar,
+    18: Pet,
+    19: Alone,
+    20: Friends,
+  }
 
   useEffect(() => {
     const fetchKeywords = async () => {
@@ -180,18 +223,22 @@ export default function KeywordSelector() {
       <Content>원하는 키워드를 선택해 주세요! <br />
         키워드를 바탕으로 AI가 축제를 추천해 줘요 :)</Content>
       <Grid>
-        {keywords.map((k) => (
-          <KeywordButton
-            key={k.id}
-            selected={selectedIds.includes(k.id)}
-            onClick={() => toggleSelect(k.id)}
-          >
-            <Label>
-              {k.label}</Label>
-            <Icon><img width={50} height={50} src={k.icon} /></Icon>
-            {/* <Icon><k.icon /></Icon> */}
-          </KeywordButton>
-        ))}
+        {keywords.map((k) => {
+          const IconComponent = iconMap[k.keywordId];
+          return (
+            <KeywordButton
+              key={k.keywordId}
+              selected={selectedIds.includes(k.keywordId)}
+              onClick={() => toggleSelect(k.keywordId)}
+            >
+              <Label>
+                {k.name}</Label>
+              <Icon>{IconComponent && <IconComponent width={40} height={40} />}</Icon>
+              {/* <Icon><k.icon /></Icon> */}
+            </KeywordButton>
+          );
+        })
+        }
       </Grid>
       <ActionButton onClick={saveKeywords}>Let's go!
 
