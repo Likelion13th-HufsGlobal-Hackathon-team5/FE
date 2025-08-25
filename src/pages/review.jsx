@@ -134,6 +134,7 @@ const ReviewPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { festivalId } = location.state || {};
+  const { Name } = location.state || {};
   const [data , setData ] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -202,7 +203,7 @@ useEffect(() => {
           <p>리뷰가 없습니다.</p>
         )}
       </ReviewList>
-      <WriteButton onClick={() => navigate("/newreview",{ state: { festivalId : festivalId} })}
+      <WriteButton onClick={() => navigate("/newreview",{ state: { festivalId : festivalId , Name : Name } })}
         >리뷰 작성하기</WriteButton>
     </Container>
   );
