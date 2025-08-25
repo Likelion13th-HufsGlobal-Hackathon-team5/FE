@@ -7,7 +7,8 @@ import { ReactComponent as Bm } from "../assets/bookmark.svg";
 import { Link, useLocation } from "react-router-dom";
 
 const NavBar = styled.nav`
-  width: 24.5625rem;
+  width: 100%;
+  max-width: 24.5625rem;
   height: 5rem;
   display: flex;
   justify-content: space-around;
@@ -15,12 +16,8 @@ const NavBar = styled.nav`
   filter: drop-shadow(0 -1px 4px rgba(0, 0, 0, 0.25));
   background-color: #FCFAF0;
   border-radius: 1rem 1rem 0 0;
-  position: fixed;
-  bottom: 0;
-  z-index: 100;
-  left: 50%; 
-  transform: translateX(-50%);
 `;
+
 
 const NavItem = styled(Link)`
   display: flex;
