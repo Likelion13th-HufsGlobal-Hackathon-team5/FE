@@ -32,7 +32,7 @@ function AppContent() {
   const location = useLocation();
 
   // Navbar 숨길 경로 목록
-  const hideNavbarRoutes = ["/", "/signup", "/keyword", "loading"];
+  const hideNavbarRoutes = ["/", "/signin", "/keyword", "loading"];
 
   const showNavbar = !hideNavbarRoutes.includes(location.pathname);
 
