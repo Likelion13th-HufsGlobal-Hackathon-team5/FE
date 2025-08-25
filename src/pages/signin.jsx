@@ -411,7 +411,7 @@ const Container = styled.div`
 const Title = styled.h1`
   color: #35C16D;
 text-align: center;
-font-family: "TJ Joy of singing TTF";
+font-family: "JoyM";
 font-size: 3rem;
 font-style: normal;
 font-weight: 500;

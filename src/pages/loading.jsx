@@ -19,18 +19,24 @@ export default function LoadingPage() {
       try {
         const ids = state?.selectedIds || [];
         const next = state?.next || "/airecommend";
+        const festivalId = state?.festivalId;
 
-        // 1) 선택 키워드 저장
-        await axiosInstance.put("/me/selected-keywords", { keywordIds: ids });
+        // 1) 키워드 선택 로직
+        if (ids.length > 0) {
+          await axiosInstance.put("/me/selected-keywords", { keywordIds: ids });
+        }
 
-        // 2) (선택) 추천 미리 불러오고 싶으면 주석 해제
-        // const recs = await axiosInstance.get("/ai/recommendations", { params: { keywordIds: ids } });
+        // 2) 상세 보기 로직 → 필요하면 미리 불러오기
+        if (festivalId) {
+          await axiosInstance.get(`/calendar/${festivalId}`);
+        }
 
-        // 3) 완료 후 다음 페이지로
+        // 3) 완료 후 다음 페이지로 이동
         navigate(next, {
-          // 필요하면 추천 결과도 함께 전달
-          // state: { selectedIds: ids, recs: recs.data },
-          state: { selectedIds: ids },
+          state: {
+            selectedIds: ids,
+            festivalId: festivalId,
+          },
           replace: true,
         });
       } catch (e) {

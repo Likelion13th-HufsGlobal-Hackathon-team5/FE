@@ -259,44 +259,44 @@ export default function Main() {
 
 
 
-useEffect(() => {
-  const fetchBookMarkData = async () => {
+  useEffect(() => {
+    const fetchBookMarkData = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get("/mypage/bookmarks");
+        setMarkData(response.data.data);
+
+        // 북마크 데이터 기반 activeStars 초기화
+        const initialStars = {};
+        response.data.data.items.forEach(item => {
+          if (item.festival?.festivalId) {
+            initialStars[item.festival.festivalId] = true;
+          }
+        });
+        setActiveStars(initialStars);
+
+        console.log(response.data);
+      } catch (err) {
+        console.error("북마크 불러오기 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookMarkData();
+  }, []);
+
+
+  const deleteBookmark = async (festivalId) => {
     try {
-      setLoading(true);
-      const response = await axiosInstance.get("/mypage/bookmarks");
-      setMarkData(response.data.data);
-
-      // 북마크 데이터 기반 activeStars 초기화
-      const initialStars = {};
-      response.data.data.items.forEach(item => {
-        if (item.festival?.festivalId) {
-          initialStars[item.festival.festivalId] = true;
-        }
-      });
-      setActiveStars(initialStars);
-
-      console.log(response.data);
-    } catch (err) {
-      console.error("북마크 불러오기 실패:", err);
-    } finally {
-      setLoading(false);
+      const response = await axiosInstance.delete(`/${festivalId}`);
+      console.log("북마크 삭제 성공:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("북마크 삭제 실패:", error.response?.data || error.message);
+      throw error;
     }
   };
-
-  fetchBookMarkData();
-}, []);
-
-
-    const deleteBookmark = async (festivalId) => {
-  try {
-    const response = await axiosInstance.delete(`/${festivalId}`);
-    console.log("북마크 삭제 성공:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("북마크 삭제 실패:", error.response?.data || error.message);
-    throw error;
-  }
-};
 
 
   const handleCalendar = async (year, month, date) => {
@@ -374,31 +374,31 @@ useEffect(() => {
     return null;
   };
 
-    
-const toggleStar = (festivalId) => {
-  setActiveStars(prev => {
-    const isActive = prev[festivalId]; // 현재 별 상태
-    const updated = {
-      ...prev,
-      [festivalId]: !isActive
-    };
 
-    // API 요청 (활성화 → 삭제 / 비활성화 → 등록)
-    if (isActive) {
-      // 활성화된 상태였으면 삭제
-      deleteBookmark(festivalId)
-        .then(res => console.log("북마크 삭제 성공:", res))
-        .catch(err => console.error("북마크 삭제 실패:", err));
-    } else {
-      // 비활성화 상태였으면 등록
-      handleBookmark(festivalId)
-        .then(res => console.log("북마크 등록 성공:", res))
-        .catch(err => console.error("북마크 등록 실패:", err));
-    }
+  const toggleStar = (festivalId) => {
+    setActiveStars(prev => {
+      const isActive = prev[festivalId]; // 현재 별 상태
+      const updated = {
+        ...prev,
+        [festivalId]: !isActive
+      };
 
-    return updated;
-  });
-};
+      // API 요청 (활성화 → 삭제 / 비활성화 → 등록)
+      if (isActive) {
+        // 활성화된 상태였으면 삭제
+        deleteBookmark(festivalId)
+          .then(res => console.log("북마크 삭제 성공:", res))
+          .catch(err => console.error("북마크 삭제 실패:", err));
+      } else {
+        // 비활성화 상태였으면 등록
+        handleBookmark(festivalId)
+          .then(res => console.log("북마크 등록 성공:", res))
+          .catch(err => console.error("북마크 등록 실패:", err));
+      }
+
+      return updated;
+    });
+  };
 
 
   const fetchTop = async () => {
@@ -475,8 +475,14 @@ const toggleStar = (festivalId) => {
                   : <Ss width={22} height={22} />}
               </BookM>
               <Arrow onClick={() =>
-                navigate("/detail", { state: { festivalId: fest.festivalId } })
-              }>
+                navigate("/loading", {
+                  state: {
+                    next: "/detail",              // 로딩 끝나면 이동할 페이지
+                    festivalId: fest.festivalId,  // detail에서 쓸 데이터
+                  },
+                })
+              }
+              >
                 <Wa />
               </Arrow>
               <ListFooter>
@@ -501,8 +507,14 @@ const toggleStar = (festivalId) => {
                   : <Ss width={22} height={22} />}
               </BookM>
               <Arrow onClick={() =>
-                navigate("/detail", { state: { festivalId: fest.festivalId } })
-              }>
+                navigate("/loading", {
+                  state: {
+                    next: "/detail",              // 로딩 끝나면 이동할 페이지
+                    festivalId: fest.festivalId,  // detail에서 쓸 데이터
+                  },
+                })
+              }
+              >
                 <Wa />
               </Arrow>
               <ListFooter>
