@@ -203,16 +203,7 @@ const toggleStar = (festivalId) => {
                   ? card.list.map((it, n) => (
                     <ImageBox key={`${it.festivalId}-${n}`}>
                       <ImagePlaceholder
-                        style={
-                          it?.imagePath
-                            ? {
-                              backgroundImage: `url(${toAbs(it.imagePath)})`,
-                              backgroundSize: "cover",
-                              backgroundPosition: "center",
-                            }
-                            : undefined
-                        }
-                      >
+                        bg={toAbs(it.imagePath)}>
                         <InfoContianer>
                           <FestivalName>{it?.festivalName ?? "풍선 축제"}</FestivalName>
                           <Date>
@@ -370,9 +361,9 @@ const ImagePlaceholder = styled.div`
   border: 1.5px solid #A9A9A9;
   width: 18.1875rem;
   background: 
-    linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%), 
-    url(${props => props.imagePath}) no-repeat center center / cover, 
-    lightgray; 
+  linear-gradient(0deg, #FFF 0%, rgba(255, 255, 255, 0.00) 100%),
+  url(${props => props.bg || ""}) no-repeat center center / cover,
+  lightgray;
 `;
 
 const InfoContianer = styled.div`
