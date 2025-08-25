@@ -243,7 +243,7 @@ export default function Signin() {
         nickCheckToken: nickToken,
       });
       console.log(response.data);
-      navigate("/login");
+      navigate("/");
     } catch (err) {
       console.error(err);
       setError("회원가입 중 오류가 발생했습니다.");
