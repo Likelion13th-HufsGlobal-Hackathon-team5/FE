@@ -165,7 +165,9 @@ export default function AiRecommendation() {
                           <Date>
                             {(it?.festivalStart || "2025.07.30")} ~ {(it?.festivalEnd || "08.20")}
                           </Date>
-                          <Arrow onClick={() => navigate(`/detail/${it?.festivalId ?? 0}`)}>
+                          <Arrow onClick={() =>
+                            navigate("/detail", { state: { festivalId: it.festivalId } })
+                          }>
                             <Go />
                           </Arrow>
                           <BookM onClick={(e) => {

@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { ReactComponent as Ss } from "../assets/Star-stroke.svg"
 import { ReactComponent as S } from "../assets/Star 4.svg"
+import { ReactComponent as Wa } from "../assets/go.svg"
 
 const Container = styled.div`
   display: flex;
@@ -235,6 +236,16 @@ line-height: normal;
 margin: 0;
 `;
 
+const Arrow = styled.div`
+    position: absolute;
+    top: 0.37rem;
+    right: 0.37rem;
+    border-radius: 50%;
+    width: 1.75rem;
+    height: 1.75rem;
+    cursor: pointer;
+`;
+
 export default function Main() {
 
   const [festivalList, setFestivalList] = useState([]);
@@ -401,9 +412,6 @@ export default function Main() {
             <ListBox
               key={fest.festivalId || idx}
               bg={fest.imagePath}
-              onClick={() =>
-                navigate("/detail", { state: { festivalId: fest.festivalId } })
-              }
             >
               <BookM onClick={(e) => {
                 e.stopPropagation();
@@ -413,6 +421,11 @@ export default function Main() {
                   ? <S width={22} height={22} />
                   : <Ss width={22} height={22} />}
               </BookM>
+              <Arrow onClick={() =>
+                navigate("/detail", { state: { festivalId: fest.festivalId } })
+              }>
+                <Wa />
+              </Arrow>
               <ListFooter>
                 <Title>{fest.festivalName}</Title>
                 <Subtitle>
@@ -425,9 +438,6 @@ export default function Main() {
             <ListBox
               key={fest.festivalId || idx}
               bg={fest.imagePath}
-              onClick={() =>
-                navigate("/detail", { state: { festivalId: fest.festivalId } })
-              }
             >
               <BookM onClick={(e) => {
                 e.stopPropagation();
@@ -437,6 +447,11 @@ export default function Main() {
                   ? <S width={22} height={22} />
                   : <Ss width={22} height={22} />}
               </BookM>
+              <Arrow onClick={() =>
+                navigate("/detail", { state: { festivalId: fest.festivalId } })
+              }>
+                <Wa />
+              </Arrow>
               <ListFooter>
                 <Title>{fest.festivalName}</Title>
                 <Subtitle>
