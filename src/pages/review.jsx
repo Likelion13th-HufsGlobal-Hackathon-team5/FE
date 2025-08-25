@@ -134,7 +134,7 @@ const ReviewPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { festivalId } = location.state || {};
-  const [data , setData ] = useState("");
+  const [data , setData ] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem("accessToken"); // 로그인 시 저장한 토큰
@@ -155,7 +155,7 @@ useEffect(() => {
           size: 20
         }
       });
-      setData(response.data);
+      setData(response.data.items || []); // 리뷰 배열만 가져오기
       console.log("우효" , response.data);
     } catch (err) {
       console.error("요약 불러오기 실패:", err.response?.data || err.message);
@@ -229,19 +229,22 @@ useEffect(() => {
         </Title>
       </ReviewBox>
       <ReviewList>
-        {reviews.map((review, index) => (
-          <ReviewItem key={index}>
-            <ReviewHeader onClick={() => toggleOpen(index)}>
-              <ReviewTitle>{review.title}</ReviewTitle>
-              {openIndexes.includes(index) ? <Up /> : <Down />}
-            </ReviewHeader>
-            {openIndexes.includes(index) && review.content && (
-              <ReviewContent>{review.content}</ReviewContent>
-            )}
-          </ReviewItem>
-        ))}
+        {Array.isArray(data) && data.length > 0 ? (
+          data.map((review, index) => (
+            <ReviewItem key={review.reviewId || index}>
+              <ReviewHeader onClick={() => toggleOpen(index)}>
+                <ReviewTitle>{review.title}</ReviewTitle>
+                {openIndexes.includes(index) ? <Up /> : <Down />}
+              </ReviewHeader>
+              {openIndexes.includes(index) && review.content && (
+                <ReviewContent>{review.content}</ReviewContent>
+              )}
+            </ReviewItem>
+          ))
+        ) : (
+          <p>리뷰가 없습니다.</p>
+        )}
       </ReviewList>
-
       <WriteButton onClick={() => navigate("/newreview",{ state: { festivalId : festivalId} })}
         >리뷰 작성하기</WriteButton>
     </Container>

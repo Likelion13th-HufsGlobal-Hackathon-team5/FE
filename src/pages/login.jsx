@@ -40,28 +40,36 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
 
-  const handleLogin = async () => {
-    setLoading(true); // 로딩 시작
-    try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
-        userId: Id,
-        password: password,
-      });
+const handleLogin = async () => {
+  setLoading(true); // 로딩 시작
+  try {
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/login`, {
+      userId: Id,
+      password: password,
+    });
 
-      const token = response.data.accessToken;
-      localStorage.setItem("accessToken", token);
-      console.log("로그인 성공:", token);
-      console.log(response.data);
+    const token = response.data.accessToken;
+    localStorage.setItem("accessToken", token);
+    localStorage.setItem("userId", Id);
 
-      localStorage.setItem("userId", Id);
-      nav("/main"); // 메인 페이지 이동
-    } catch (error) {
-      console.error("로그인 실패:", error.response?.data || error.message);
-      alert("아이디 또는 비밀번호가 올바르지 않습니다.");
-    } finally {
-      setLoading(false); // 로딩 종료
+    console.log("로그인 성공:", token);
+    console.log(response.data);
+
+    // hasAiKeywordHistory 값 확인 후 이동
+    if (response.data.hasAiKeywordHistory) {
+      nav("/main");       // true면 main으로 이동
+    } else {
+      nav("/keyword");    // false면 keyword로 이동
     }
-  };
+
+  } catch (error) {
+    console.error("로그인 실패:", error.response?.data || error.message);
+    alert("아이디 또는 비밀번호가 올바르지 않습니다.");
+  } finally {
+    setLoading(false); // 로딩 종료
+  }
+};
+
 
 const handleKeyDown = (e) => {
   if (e.key === "Enter") {
