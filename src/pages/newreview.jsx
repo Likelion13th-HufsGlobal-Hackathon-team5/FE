@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import bg from "../assets/review_bg.png"
-import backicon from "../assets/back_blue.svg"; 
-import { ReactComponent as Crt } from "../assets/thumb.svg"; 
+import backicon from "../assets/back_blue.svg";
+import { ReactComponent as Crt } from "../assets/thumb.svg";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../AxiosInstance";
 import { useLocation } from "react-router-dom";
+import JoyB from "../fonts/TJJoyofsingingB_TTF.ttf";
 
 const Container = styled.div`
   display: flex;
@@ -35,14 +36,15 @@ const BackButton = styled.button`
 const Title = styled.div`
     color: #93E6F2;
     text-align: center;
-    -webkit-text-stroke-width: 1.7px;
+    -webkit-text-stroke-width: 0.8px;
     -webkit-text-stroke-color: #455445;
-    font-family: "TJ Joy of singing TTF";
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-style: normal;
     font-weight: 800;
     line-height: normal;
     margin-top: 0.5rem;
+    font-family: 'JoyB';
+    word-break: break-all;
 `;
 
 const Form = styled.div`
@@ -62,7 +64,7 @@ const Form = styled.div`
 
 const Input = styled.input`
     width: 19.4375rem;
-    padding: 0.5625rem 9.3125rem 0.5rem 0.625rem;
+    padding: 0.5625rem 0 0.5rem 0.625rem;
     border-radius: 0.625rem;
     background: #DFF7FB;
     font-size: 1rem;
@@ -89,7 +91,7 @@ const TextArea = styled.textarea`
     font-size: 1rem;
     color: #333;
     resize: none;
-    padding: 0.5625rem 9.3125rem 0.5rem 0.625rem;
+    padding: 0.5625rem 0 0.5rem 0.625rem;
     border-radius: 0.625rem;
     border: none;
     font-family: "TJ Joy of singing TTF";
@@ -135,13 +137,13 @@ const CrtWrapper = styled.div`
 `;
 
 function ReviewPage() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const [mockFes] = useState({
-        name: "풍선 축제"
-      });      
-  const [title, setTitle] = useState("");   
-  const [content, setContent] = useState(""); 
+  const [mockFes] = useState({
+    name: "풍선 축제"
+  });
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const savedUserId = localStorage.getItem("userId");
   const location = useLocation();
   const { festivalId } = location.state || {}; // state에서 festivalId 가져오기
@@ -149,7 +151,7 @@ function ReviewPage() {
 
 
 
-    const handleUpload = async () => {
+  const handleUpload = async () => {
     if (!title.trim() || !content.trim()) {
       alert("제목과 내용을 모두 입력해주세요!");
       return;
@@ -157,17 +159,17 @@ function ReviewPage() {
 
     try {
       const response = await axiosInstance.post("/reviews", {
-    festivalId : festivalId,
-    userId : savedUserId,
-    reviewTitle : title,
-    reviewCont : content
-    });
+        festivalId: festivalId,
+        userId: savedUserId,
+        reviewTitle: title,
+        reviewCont: content
+      });
       console.log("리뷰 작성 후 토큰:", localStorage.getItem("accessToken"));
       console.log("업로드 성공:", response.data);
       await new Promise((res) => setTimeout(res, 500));
 
       alert("리뷰가 성공적으로 등록되었습니다!");
-      navigate(-1); 
+      navigate(-1);
     } catch (error) {
       console.error("업로드 실패:", error);
       alert("업로드 중 오류가 발생했습니다.");
@@ -176,7 +178,7 @@ function ReviewPage() {
 
   return (
     <Container>
-      <BackButton onClick={() => navigate(-1)}/>
+      <BackButton onClick={() => navigate(-1)} />
       <Title>{Name}</Title>
       <Form>
         <Input
