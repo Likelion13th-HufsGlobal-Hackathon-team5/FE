@@ -145,6 +145,7 @@ function ReviewPage() {
   const savedUserId = localStorage.getItem("userId");
   const location = useLocation();
   const { festivalId } = location.state || {}; // state에서 festivalId 가져오기
+  const { Name } = location.state || {}
 
 
 
@@ -176,7 +177,7 @@ function ReviewPage() {
   return (
     <Container>
       <BackButton onClick={() => navigate(-1)}/>
-      <Title>{mockFes.name}</Title>
+      <Title>{Name}</Title>
       <Form>
         <Input
           placeholder="제목을 입력해 주세요"

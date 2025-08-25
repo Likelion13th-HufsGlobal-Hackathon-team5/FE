@@ -360,7 +360,7 @@ export default function Detail() {
             {festivalData.aiReview}
           </AiReview>
           <BtnContainer>
-            <DetailBtn onClick={() => Navigate("/review", { state: { festivalId: festivalId } })}>전체 리뷰 보기</DetailBtn>
+            <DetailBtn onClick={() => Navigate("/review", { state: { festivalId: festivalId , Name : festivalData.festivalName } })}>전체 리뷰 보기</DetailBtn>
           </BtnContainer>
         </DetailContainer>)}
     </Container>
