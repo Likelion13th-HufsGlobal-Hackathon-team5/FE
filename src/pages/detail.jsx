@@ -26,6 +26,7 @@ const Container = styled.div`
 `;
 
 const DetailContainer = styled.div`
+position: relative;
     width: 21.6875rem;
     height: 43.5625rem;
     padding : 1.25rem 0.6rem 2.5rem 0.6rem;
@@ -50,7 +51,8 @@ const DetailTitle = styled.h1`
     -webkit-text-stroke-width: 0.1px;
     -webkit-text-stroke-color: #455445;
     font-family: "TJJoyofsingingB";
-    font-size: 3rem;
+    font-size: 2rem;
+    margin-bottom: 0.35rem;
     font-style: normal;
     font-weight: 700;
     line-height: normal;
@@ -62,12 +64,13 @@ const DetailTitle = styled.h1`
 `
 
 const Star = styled(FaStar)`
-  width: 5.5rem;
-  height: 3.5rem;
-  margin-right: 1rem;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 1.8rem;
+  height: 1.8rem;
   border-radius: 0.1rem;
   fill: ${({ $active }) => ($active ? "#FFEB34" : "#ccc")};
-  margin-left: 5.31rem;
   cursor: pointer;
 `;
 
@@ -76,7 +79,7 @@ const DayText = styled.h3`
     margin: 0;
     color: #111;
     font-family: "TJ Joy of singing TTF";
-    font-size: 0.9375rem;
+    font-size: 0.8rem;
     font-style: normal;
     font-weight: 700;
     line-height: 140%;
@@ -88,7 +91,7 @@ const RegText = styled.h3`
     color: #111;
     margin-left: 0.65rem;
     font-family: "TJ Joy of singing TTF";
-    font-size: 0.6875rem;
+    font-size: 0.65rem;
     font-style: normal;
     font-weight: 700;
     line-height: 140%; /* 0.9625rem */
@@ -137,7 +140,24 @@ const AiContainer = styled.div`
     display: flex;
     flex-direction: row;
 `
-const BtnContainer =styled.div`
+
+const AiReview = styled.div`
+  margin: 0;
+  width: 18.31rem;
+  max-height: 10rem;   
+  color: #000;
+  font-family: "TJJoyofsingingL";
+  font-size: 0.9375rem;
+  font-style: normal;
+  font-weight: 300;
+  line-height: normal;
+  margin-top: 0.62rem;
+  margin-left: 1.06rem;
+  overflow-y: auto;   /* 스크롤 가능 */
+  white-space: pre-wrap; /* 줄바꿈 유지 */
+`;
+
+const BtnContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
@@ -189,160 +209,160 @@ const Back = styled(FaArrowLeft)`
     border-radius: 0.5rem;
 `
 
-export default function Detail(){
+export default function Detail() {
 
-    const Navigate = useNavigate();
-    const [festivalData, setFestivalData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const location = useLocation();
-    const { festivalId } = location.state || {}; // state에서 festivalId 가져오기
-    const [activeStars, setActiveStars] = useState({});
-    const [markData, setMarkData] = useState(null);
+  const Navigate = useNavigate();
+  const [festivalData, setFestivalData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const { festivalId } = location.state || {}; // state에서 festivalId 가져오기
+  const [activeStars, setActiveStars] = useState({});
+  const [markData, setMarkData] = useState(null);
 
-    console.log("받은 festivalId:", festivalId);
+  console.log("받은 festivalId:", festivalId);
 
-useEffect(() => {
-  const fetchBookMarkData = async () => {
-    try {
-      setLoading(true);
-      const response = await axiosInstance.get("/mypage/bookmarks");
-      setMarkData(response.data.data);
-
-      // 북마크 데이터 기반 activeStars 초기화
-      const initialStars = {};
-      response.data.data.items.forEach(item => {
-        if (item.festival?.festivalId) {
-          initialStars[item.festival.festivalId] = true;
-        }
-      });
-      setActiveStars(initialStars);
-
-      console.log(response.data);
-    } catch (err) {
-      console.error("북마크 불러오기 실패:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchBookMarkData();
-}, []);
-
-
-
-        useEffect(() => {
-        if (!festivalId) return;
-
-        const fetchFestival = async () => {
-            try {
-                setLoading(true);
-                const response = await axiosInstance.get(`/calendar/${festivalId}`);
-                setFestivalData(response.data);
-                console.log("받았다" ,response.data);
-                
-            } catch (err) {
-                console.error("축제 데이터 불러오기 실패:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchFestival();
-    }, [festivalId]);
-
-    const deleteBookmark = async (bookmarkId) => {
-  try {
-    const response = await axiosInstance.delete(`/${festivalId}`);
-    console.log("북마크 삭제 성공:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("북마크 삭제 실패:", error.response?.data || error.message);
-    throw error;
-  }
-};
-
-
-      const handleBookmark = async (festivalId) => {
+  useEffect(() => {
+    const fetchBookMarkData = async () => {
       try {
-        const response = await axiosInstance.post(`/bookmarks`, {
-          festivalId: festivalId
+        setLoading(true);
+        const response = await axiosInstance.get("/mypage/bookmarks");
+        setMarkData(response.data.data);
+
+        // 북마크 데이터 기반 activeStars 초기화
+        const initialStars = {};
+        response.data.data.items.forEach(item => {
+          if (item.festival?.festivalId) {
+            initialStars[item.festival.festivalId] = true;
+          }
         });
-    
-        console.log("북마크 등록 성공:", response.data);
-        return response.data;
-      } catch (error) {
-        console.error("북마크 등록 실패:", error.response?.data || error.message);
-        throw error;
+        setActiveStars(initialStars);
+
+        console.log(response.data);
+      } catch (err) {
+        console.error("북마크 불러오기 실패:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    
-const toggleStar = (festivalId) => {
-  setActiveStars(prev => {
-    const isActive = prev[festivalId]; // 현재 별 상태
-    const updated = {
-      ...prev,
-      [festivalId]: !isActive
+    fetchBookMarkData();
+  }, []);
+
+
+
+  useEffect(() => {
+    if (!festivalId) return;
+
+    const fetchFestival = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get(`/calendar/${festivalId}`);
+        setFestivalData(response.data);
+        console.log("받았다", response.data);
+
+      } catch (err) {
+        console.error("축제 데이터 불러오기 실패:", err);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    // API 요청 (활성화 → 삭제 / 비활성화 → 등록)
-    if (isActive) {
-      // 활성화된 상태였으면 삭제
-      deleteBookmark(festivalId)
-        .then(res => console.log("북마크 삭제 성공:", res))
-        .catch(err => console.error("북마크 삭제 실패:", err));
-    } else {
-      // 비활성화 상태였으면 등록
-      handleBookmark(festivalId)
-        .then(res => console.log("북마크 등록 성공:", res))
-        .catch(err => console.error("북마크 등록 실패:", err));
+    fetchFestival();
+  }, [festivalId]);
+
+  const deleteBookmark = async (bookmarkId) => {
+    try {
+      const response = await axiosInstance.delete(`/${festivalId}`);
+      console.log("북마크 삭제 성공:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("북마크 삭제 실패:", error.response?.data || error.message);
+      throw error;
     }
-
-    return updated;
-  });
-};
+  };
 
 
+  const handleBookmark = async (festivalId) => {
+    try {
+      const response = await axiosInstance.post(`/bookmarks`, {
+        festivalId: festivalId
+      });
+
+      console.log("북마크 등록 성공:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("북마크 등록 실패:", error.response?.data || error.message);
+      throw error;
+    }
+  };
+
+
+  const toggleStar = (festivalId) => {
+    setActiveStars(prev => {
+      const isActive = prev[festivalId]; // 현재 별 상태
+      const updated = {
+        ...prev,
+        [festivalId]: !isActive
+      };
+
+      // API 요청 (활성화 → 삭제 / 비활성화 → 등록)
+      if (isActive) {
+        // 활성화된 상태였으면 삭제
+        deleteBookmark(festivalId)
+          .then(res => console.log("북마크 삭제 성공:", res))
+          .catch(err => console.error("북마크 삭제 실패:", err));
+      } else {
+        // 비활성화 상태였으면 등록
+        handleBookmark(festivalId)
+          .then(res => console.log("북마크 등록 성공:", res))
+          .catch(err => console.error("북마크 등록 실패:", err));
+      }
+
+      return updated;
+    });
+  };
 
 
 
-    return(
-        <Container>
-            <BackConatiner>
-                <BackBtn onClick={() => Navigate(-1)}>
-                    <Back/>
-                </BackBtn>
-            </BackConatiner>
-            {loading ? (
-            <p>로딩 중...</p>
-        ) : !festivalData ? (
-            <p>데이터가 없습니다.</p>
-        ) : (
-            <DetailContainer>
-                <TitleContainer>
-                    <DetailTitle>{festivalData.festivalName}</DetailTitle>
-                    <Star
-                        $active={activeStars[festivalId]} // 현재 festivalId에 대한 활성화 여부
-                        onClick={() => toggleStar(festivalId)} // 클릭 시 festivalId 전달
-                    />
-                </TitleContainer>
-                <DayText>{festivalData.festivalStart} - {festivalData.festivalEnd}</DayText>
-                <RegText>{festivalData.festivalLoca}</RegText>
-                <Img src={festivalData.imagePath}/>
-                <IntroTitle>소개</IntroTitle>
-                <IntroDetail>
-                    {festivalData.festivalDesc}
-                </IntroDetail>
-                <AiContainer>
-                    <IntroTitle>AI 리뷰</IntroTitle>
-                </AiContainer>
-                <IntroDetail>
-                    {festivalData.aiReview}
-                </IntroDetail>
-                <BtnContainer>
-                    <DetailBtn onClick={() => Navigate("/review", { state: { festivalId: festivalId } })}>전체 리뷰 보기</DetailBtn>
-                </BtnContainer>
-            </DetailContainer>)}
-        </Container>
-    )
+
+
+  return (
+    <Container>
+      <BackConatiner>
+        <BackBtn onClick={() => Navigate(-1)}>
+          <Back />
+        </BackBtn>
+      </BackConatiner>
+      {loading ? (
+        <p>로딩 중...</p>
+      ) : !festivalData ? (
+        <p>데이터가 없습니다.</p>
+      ) : (
+        <DetailContainer>
+          <TitleContainer>
+            <DetailTitle>{festivalData.festivalName}</DetailTitle>
+            <Star
+              $active={activeStars[festivalId]} // 현재 festivalId에 대한 활성화 여부
+              onClick={() => toggleStar(festivalId)} // 클릭 시 festivalId 전달
+            />
+          </TitleContainer>
+          <DayText>{festivalData.festivalStart} - {festivalData.festivalEnd}</DayText>
+          <RegText>{festivalData.festivalLoca}</RegText>
+          <Img src={festivalData.imagePath} />
+          <IntroTitle>소개</IntroTitle>
+          <IntroDetail>
+            {festivalData.festivalDesc}
+          </IntroDetail>
+          <AiContainer>
+            <IntroTitle>AI 리뷰</IntroTitle>
+          </AiContainer>
+          <AiReview>
+            {festivalData.aiReview}
+          </AiReview>
+          <BtnContainer>
+            <DetailBtn onClick={() => Navigate("/review", { state: { festivalId: festivalId } })}>전체 리뷰 보기</DetailBtn>
+          </BtnContainer>
+        </DetailContainer>)}
+    </Container>
+  )
 }
