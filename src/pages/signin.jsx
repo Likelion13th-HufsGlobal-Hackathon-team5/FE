@@ -112,6 +112,7 @@ export default function Signin() {
   const [IdToken, setIdtoken] = useState("");
   const [NameToken, setNametoken] = useState("");
 
+  const Navigate = useNavigate();
 
   // // ===== 닉네임 중복 확인(목) =====
   // const checkNickAvailability = async () => {
@@ -242,6 +243,7 @@ export default function Signin() {
         nickCheckToken: nickToken,
       });
       console.log(response.data);
+      navigate("/login");
     } catch (err) {
       console.error(err);
       setError("회원가입 중 오류가 발생했습니다.");
