@@ -255,9 +255,48 @@ export default function Main() {
   const [value, setValue] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [topdata, setTopdata] = useState([]);
+  const [markData, setMarkData] = useState(null);
 
 
 
+useEffect(() => {
+  const fetchBookMarkData = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get("/mypage/bookmarks");
+      setMarkData(response.data.data);
+
+      // 북마크 데이터 기반 activeStars 초기화
+      const initialStars = {};
+      response.data.data.items.forEach(item => {
+        if (item.festival?.festivalId) {
+          initialStars[item.festival.festivalId] = true;
+        }
+      });
+      setActiveStars(initialStars);
+
+      console.log(response.data);
+    } catch (err) {
+      console.error("북마크 불러오기 실패:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchBookMarkData();
+}, []);
+
+
+    const deleteBookmark = async (festivalId) => {
+  try {
+    const response = await axiosInstance.delete(`/${festivalId}`);
+    console.log("북마크 삭제 성공:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("북마크 삭제 실패:", error.response?.data || error.message);
+    throw error;
+  }
+};
 
 
   const handleCalendar = async (year, month, date) => {
@@ -335,18 +374,32 @@ export default function Main() {
     return null;
   };
 
-  const toggleStar = (festivalId) => {
-    // UI 먼저 바꾸기
-    setActiveStars(prev => ({
+    
+const toggleStar = (festivalId) => {
+  setActiveStars(prev => {
+    const isActive = prev[festivalId]; // 현재 별 상태
+    const updated = {
       ...prev,
-      [festivalId]: !prev[festivalId]
-    }));
+      [festivalId]: !isActive
+    };
 
-    // 서버 요청, 실패해도 UI는 유지
-    handleBookmark(festivalId)
-      .then(res => console.log("북마크 등록 성공:", res))
-      .catch(err => console.error("북마크 등록 실패:", err));
-  };
+    // API 요청 (활성화 → 삭제 / 비활성화 → 등록)
+    if (isActive) {
+      // 활성화된 상태였으면 삭제
+      deleteBookmark(festivalId)
+        .then(res => console.log("북마크 삭제 성공:", res))
+        .catch(err => console.error("북마크 삭제 실패:", err));
+    } else {
+      // 비활성화 상태였으면 등록
+      handleBookmark(festivalId)
+        .then(res => console.log("북마크 등록 성공:", res))
+        .catch(err => console.error("북마크 등록 실패:", err));
+    }
+
+    return updated;
+  });
+};
+
 
   const fetchTop = async () => {
     try {
