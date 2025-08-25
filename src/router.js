@@ -20,7 +20,6 @@ import Navbar from "./components/navbar";
 const RouterComponent = () => {
     return (
         <Routes>
-          <Route path="/" element={<Setting />} />
           <Route path="/logoutmodal" element={<LogoutModal />} />
           <Route path="/namemodal" element={<NameModal />} />
           <Route path="/passwordmodal" element={<PasswordModal />} />
@@ -28,7 +27,7 @@ const RouterComponent = () => {
           <Route path="/detail" element={<Detail />} />
           <Route path="/keyword" element={<Keyword />} />
           <Route path="/loading" element={<Loading />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Login />} />
           <Route path="/main" element={<Main />} />
           <Route path="/mypage" element={<Mypage />} />
           <Route path="/newreview" element={<NewReview />} />
