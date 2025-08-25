@@ -118,6 +118,7 @@ const IntroTitle = styled.h3`
 const IntroDetail = styled.h3`
     margin : 0;
     width : 18.31rem;
+    height : 5.5rem;
     color: #000;
     font-family: "TJJoyofsingingL";
     font-size: 0.9375rem;
@@ -126,6 +127,10 @@ const IntroDetail = styled.h3`
     line-height: normal;
     margin-top: 0.62rem;
     margin-left: 1.06rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    
+    
 `
 
 const AiContainer = styled.div`
@@ -186,18 +191,45 @@ const Back = styled(FaArrowLeft)`
 
 export default function Detail(){
 
-    const [activeStar, setActiveStar] = useState(false);
     const Navigate = useNavigate();
     const [festivalData, setFestivalData] = useState(null);
     const [loading, setLoading] = useState(true);
     const location = useLocation();
     const { festivalId } = location.state || {}; // state에서 festivalId 가져오기
+    const [activeStars, setActiveStars] = useState({});
+    const [markData, setMarkData] = useState(null);
 
     console.log("받은 festivalId:", festivalId);
 
-    const toggleStar = () => {
-        setActiveStar((prev) => !prev);
-    };
+useEffect(() => {
+  const fetchBookMarkData = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get("/mypage/bookmarks");
+      setMarkData(response.data.data);
+
+      // 북마크 데이터 기반 activeStars 초기화
+      const initialStars = {};
+      response.data.data.items.forEach(item => {
+        if (item.festival?.festivalId) {
+          initialStars[item.festival.festivalId] = true;
+        }
+      });
+      setActiveStars(initialStars);
+
+      console.log(response.data);
+    } catch (err) {
+      console.error("북마크 불러오기 실패:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchBookMarkData();
+}, []);
+
+
+
         useEffect(() => {
         if (!festivalId) return;
 
@@ -218,6 +250,61 @@ export default function Detail(){
         fetchFestival();
     }, [festivalId]);
 
+    const deleteBookmark = async (bookmarkId) => {
+  try {
+    const response = await axiosInstance.delete(`/${festivalId}`);
+    console.log("북마크 삭제 성공:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("북마크 삭제 실패:", error.response?.data || error.message);
+    throw error;
+  }
+};
+
+
+      const handleBookmark = async (festivalId) => {
+      try {
+        const response = await axiosInstance.post(`/bookmarks`, {
+          festivalId: festivalId
+        });
+    
+        console.log("북마크 등록 성공:", response.data);
+        return response.data;
+      } catch (error) {
+        console.error("북마크 등록 실패:", error.response?.data || error.message);
+        throw error;
+      }
+    };
+
+    
+const toggleStar = (festivalId) => {
+  setActiveStars(prev => {
+    const isActive = prev[festivalId]; // 현재 별 상태
+    const updated = {
+      ...prev,
+      [festivalId]: !isActive
+    };
+
+    // API 요청 (활성화 → 삭제 / 비활성화 → 등록)
+    if (isActive) {
+      // 활성화된 상태였으면 삭제
+      deleteBookmark(festivalId)
+        .then(res => console.log("북마크 삭제 성공:", res))
+        .catch(err => console.error("북마크 삭제 실패:", err));
+    } else {
+      // 비활성화 상태였으면 등록
+      handleBookmark(festivalId)
+        .then(res => console.log("북마크 등록 성공:", res))
+        .catch(err => console.error("북마크 등록 실패:", err));
+    }
+
+    return updated;
+  });
+};
+
+
+
+
 
     return(
         <Container>
@@ -234,7 +321,10 @@ export default function Detail(){
             <DetailContainer>
                 <TitleContainer>
                     <DetailTitle>{festivalData.festivalName}</DetailTitle>
-                    <Star $active={activeStar} onClick={toggleStar} />
+                    <Star
+                        $active={activeStars[festivalId]} // 현재 festivalId에 대한 활성화 여부
+                        onClick={() => toggleStar(festivalId)} // 클릭 시 festivalId 전달
+                    />
                 </TitleContainer>
                 <DayText>{festivalData.festivalStart} - {festivalData.festivalEnd}</DayText>
                 <RegText>{festivalData.festivalLoca}</RegText>
