@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import axiosInstance from "../AxiosInstance";
 import { useState } from "react";
+import { ReactComponent as Ss } from "../assets/Star-stroke.svg"
+import { ReactComponent as S } from "../assets/Star 4.svg"
 
 
 const Container = styled.div`
@@ -116,10 +118,59 @@ const Arrow = styled.div`
     cursor: pointer;
 `;
 
+const BookM = styled.div`
+  width: 1.9375rem;
+  height: 3.1875rem;
+  position: absolute;
+  left: 1.0625rem;
+  fill: rgba(255, 255, 255, 0.50);
+  backdrop-filter: blur(5px);
+  top: 0rem;       
+  z-index: 2;       
+  border-width: 0.5px;
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.4);
+  border-top: none;
+  display: flex;    
+  align-items: flex-end;
+  padding-bottom: 6px;
+  box-sizing: border-box;
+  justify-content: center; 
+  border-radius: 0 0 10px 10px;
+`
+
 export default function BookmarkPage() {
   const navigate = useNavigate();
   const [markData, setMarkData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [activeStars, setActiveStars] = useState({});
+
+  const handleBookmark = async (festivalId) => {
+    try {
+      const response = await axiosInstance.post(`/bookmarks`, {
+        festivalId: festivalId
+      });
+
+      console.log("북마크 등록 성공:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("북마크 등록 실패:", error.response?.data || error.message);
+      throw error;
+    }
+  };
+
+  const toggleStar = (festivalId) => {
+    // UI 먼저 바꾸기
+    setActiveStars(prev => ({
+      ...prev,
+      [festivalId]: !prev[festivalId]
+    }));
+
+    // 서버 요청, 실패해도 UI는 유지
+    handleBookmark(festivalId)
+      .then(res => console.log("북마크 등록 성공:", res))
+      .catch(err => console.error("북마크 등록 실패:", err));
+  };
 
   useEffect(() => {
     const fetchBookMarkData = async () => {
@@ -127,6 +178,12 @@ export default function BookmarkPage() {
         setLoading(true);
         const response = await axiosInstance.get("/mypage/bookmarks");
         setMarkData(response.data.data);
+        const initialStars = {};
+        response.data.data.items.forEach(item => {
+          initialStars[item.festival.festivalId] = true;
+        });
+        setActiveStars(initialStars);
+
         console.log(response.data);
 
       } catch (err) {
@@ -158,6 +215,14 @@ export default function BookmarkPage() {
                   {item.festival.festivalStart} ~ {item.festival.festivalEnd}
                 </Date>
               </CardText>
+              <BookM onClick={(e) => {
+                e.stopPropagation();
+                toggleStar(item.festival.festivalId);
+              }}>
+                {activeStars[item.festival.festivalId]
+                  ? <S width={22} height={22} />
+                  : <Ss width={22} height={22} />}
+              </BookM>
               <Arrow onClick={() => navigate(`/detail/${item.festival.festivalId}`)}>
                 <Go />
               </Arrow>
