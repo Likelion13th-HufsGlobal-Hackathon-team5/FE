@@ -263,7 +263,7 @@ const Header = styled.h2`
   border-radius: 0 2.5rem 2.5rem 0;
   background: #66CE94;
   color: #FFF;
-  font-family: "DNF Bit Bit TTF";
+  font-family: "DNFBitBit";
   font-size: 1.75rem;
   font-style: normal;
   font-weight: 400;
