@@ -119,27 +119,30 @@ const Label = styled.div`
 `;
 
 const ActionButton = styled.button`
-    position: absolute; 
-    bottom: 1.69rem;         
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0.8rem 0;
-    border: none;
-    border-radius: 12px;
-    width: 13.5625rem;
-    height: 3.625rem;
-    border-radius: 6.25rem;
-    background: #66CE94;
-    box-shadow: 2px 2px 7px 0 rgba(0, 0, 0, 0.25);
+  position: absolute; 
+  bottom: 1.69rem;         
+  left: 50%;
+  transform: translateX(-50%);
+  width: 13.5625rem;
+  height: 3.625rem;
+  border: none;
+  border-radius: 6.25rem;
+  background: #66CE94;
+  box-shadow: 2px 2px 7px rgba(0,0,0,0.25);
+  cursor: pointer;
 
-    color: #FFF;
-    font-family: "TJ Joy of singing TTF";
-    font-size: 1.8125rem;
-    font-style: normal;
-    font-weight: 700;
-    line-height: normal;
-    cursor: pointer;
+  /* 텍스트 정중앙 정렬 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #fff;
+  font-family: 'JoyEB', 'JoyB', sans-serif;  /* ExtraBold 우선, 없으면 Bold */
+  font-size: 1.8125rem;
+  font-weight: 800; /* EB면 800, B면 700 */
+  line-height: 1;   /* 수직 중앙 보정에 도움 */
 `;
+
 
 export default function KeywordSelector() {
   const [keywords, setKeywords] = useState([]);
