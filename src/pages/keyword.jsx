@@ -25,7 +25,7 @@ import { ReactComponent as Bar } from "../assets/keyword-icons/17_bar.svg";
 import { ReactComponent as Pet } from "../assets/keyword-icons/18_pet.svg";
 import { ReactComponent as Alone } from "../assets/keyword-icons/19_alone.svg";
 import { ReactComponent as Friends } from "../assets/keyword-icons/20_friends.svg";
-
+import JoyB from "../fonts/TJJoyofsingingB_TTF.ttf"; // Bold
 
 const Container = styled.div`
   display: flex;
@@ -130,6 +130,13 @@ const ActionButton = styled.button`
   background: #66CE94;
   box-shadow: 2px 2px 7px rgba(0,0,0,0.25);
   cursor: pointer;
+  @font-face {
+    font-family: 'JoyB';
+    src: url(${JoyB}) format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
 
   /* 텍스트 정중앙 정렬 */
   display: flex;

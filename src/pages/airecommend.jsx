@@ -45,28 +45,28 @@ export default function AiRecommendation() {
 
 
   useEffect(() => {
-      const fetchBookMarkData = async () => {
-        try {
-          setLoading(true);
-          const response = await axiosInstance.get("/mypage/bookmarks");
-          setMarkData(response.data.data);
-          const initialStars = {};
-          response.data.data.items.forEach(item => {
-            initialStars[item.festival.festivalId] = true;
-          });
-          setActiveStars(initialStars);
-  
-          console.log("북마크 데이터",response.data);
-  
-        } catch (err) {
-          console.error("북마크 불러오기 실패:", err);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchBookMarkData();
-    }, []);
+    const fetchBookMarkData = async () => {
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get("/mypage/bookmarks");
+        setMarkData(response.data.data);
+        const initialStars = {};
+        response.data.data.items.forEach(item => {
+          initialStars[item.festival.festivalId] = true;
+        });
+        setActiveStars(initialStars);
+
+        console.log("북마크 데이터", response.data);
+
+      } catch (err) {
+        console.error("북마크 불러오기 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookMarkData();
+  }, []);
 
   const handleBookmark = async (festivalId) => {
     try {
@@ -82,86 +82,86 @@ export default function AiRecommendation() {
     }
   };
 
-  
-        const deleteBookmark = async (festivalId) => {
-      try {
-        const response = await axiosInstance.delete(`/${festivalId}`);
-        console.log("북마크 삭제 성공:", response.data);
-        return response.data;
-      } catch (error) {
-        console.error("북마크 삭제 실패:", error.response?.data || error.message);
-        throw error;
-      }
-    };
-  
-  
-  
-const toggleStar = (festivalId) => {
-  setActiveStars(prev => {
-    const isActive = prev[festivalId]; // 현재 별 상태
-    const updated = {
-      ...prev,
-      [festivalId]: !isActive
-    };
 
-    // API 요청 (활성화 → 삭제 / 비활성화 → 등록)
-    if (isActive) {
-      // 활성화된 상태였으면 삭제
-      deleteBookmark(festivalId)
-        .then(res => console.log("북마크 삭제 성공:", res))
-        .catch(err => console.error("북마크 삭제 실패:", err));
-    } else {
-      // 비활성화 상태였으면 등록
-      handleBookmark(festivalId)
-        .then(res => console.log("북마크 등록 성공:", res))
-        .catch(err => console.error("북마크 등록 실패:", err));
+  const deleteBookmark = async (festivalId) => {
+    try {
+      const response = await axiosInstance.delete(`/${festivalId}`);
+      console.log("북마크 삭제 성공:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("북마크 삭제 실패:", error.response?.data || error.message);
+      throw error;
     }
+  };
 
-    return updated;
-  });
-};
+
+
+  const toggleStar = (festivalId) => {
+    setActiveStars(prev => {
+      const isActive = prev[festivalId]; // 현재 별 상태
+      const updated = {
+        ...prev,
+        [festivalId]: !isActive
+      };
+
+      // API 요청 (활성화 → 삭제 / 비활성화 → 등록)
+      if (isActive) {
+        // 활성화된 상태였으면 삭제
+        deleteBookmark(festivalId)
+          .then(res => console.log("북마크 삭제 성공:", res))
+          .catch(err => console.error("북마크 삭제 실패:", err));
+      } else {
+        // 비활성화 상태였으면 등록
+        handleBookmark(festivalId)
+          .then(res => console.log("북마크 등록 성공:", res))
+          .catch(err => console.error("북마크 등록 실패:", err));
+      }
+
+      return updated;
+    });
+  };
 
   useEffect(() => {
-  (async () => {
-    try {
-      const res = await axiosInstance.get("/festivals/recommend", { params: { limit: 5 } });
-      const data = res?.data;
-      
-      if (data?.success && Array.isArray(data?.data)) {
-        // data.data는 이제 [{title, items, totalCount}, ...] 구조
-        setItems(data.data); 
-        console.log("[AI RECO] items:", data.data);
-      } else {
+    (async () => {
+      try {
+        const res = await axiosInstance.get("/festivals/recommend", { params: { limit: 5 } });
+        const data = res?.data;
+
+        if (data?.success && Array.isArray(data?.data)) {
+          // data.data는 이제 [{title, items, totalCount}, ...] 구조
+          setItems(data.data);
+          console.log("[AI RECO] items:", data.data);
+        } else {
+          setItems([]);
+        }
+      } catch (e) {
+        console.warn("[AI RECO ERROR]", e?.response?.status, e?.response?.data || e?.message);
         setItems([]);
       }
-    } catch (e) {
-      console.warn("[AI RECO ERROR]", e?.response?.status, e?.response?.data || e?.message);
-      setItems([]);
-    }
-  })();
-}, []);
+    })();
+  }, []);
 
 
   // 원본 디자인 유지: 카드 3개 + 각 카드의 슬라이드
   // 받은 items를 3그룹으로 분배(부족하면 순환 채움, 완전 비면 placeholder 그대로 보임)
-const grouped = useMemo(() => {
-  if (!Array.isArray(items)) return [];
+  const grouped = useMemo(() => {
+    if (!Array.isArray(items)) return [];
 
-  return items.map(group => group.items || []);
-}, [items]);
+    return items.map(group => group.items || []);
+  }, [items]);
 
 
   const cards = useMemo(() => {
-  if (!Array.isArray(items)) return [];
+    if (!Array.isArray(items)) return [];
 
-  return items.map(group => ({
-    title: group.title,
-    subtitle: group.items?.length
-      ? `${group.items[0].festivalName} 등 ${group.items.length}개`
-      : "축제 없음",
-    list: group.items || [],
-  }));
-}, [items]);
+    return items.map(group => ({
+      title: group.title,
+      subtitle: group.items?.length
+        ? `${group.items[0].festivalName} 등 ${group.items.length}개`
+        : "축제 없음",
+      list: group.items || [],
+    }));
+  }, [items]);
 
 
   return (
@@ -185,8 +185,14 @@ const grouped = useMemo(() => {
                             {(it?.festivalStart || "2025.07.30")} ~ {(it?.festivalEnd || "08.20")}
                           </Date>
                           <Arrow onClick={() =>
-                            navigate("/detail", { state: { festivalId: it.festivalId } })
-                          }>
+                            navigate("/loading", {
+                              state: {
+                                next: "/detail",             // 로딩 끝나면 이동할 페이지
+                                festivalId: it.festivalId,   // detail에서 쓸 데이터
+                              },
+                            })
+                          }
+                          >
                             <Go />
                           </Arrow>
                           <BookM onClick={(e) => {

@@ -55,7 +55,7 @@ async function updatePasswordMock({ newPassword }) {
  * ========================================= */
 
 /* ===== 비밀번호 변경 모달 ===== */
-export default function PasswordModal({ savedPassword = "1234", onClose = () => {}, onChanged }) {
+export default function PasswordModal({ savedPassword = "1234", onClose = () => { }, onChanged }) {
   // ---------------------------
   // [연동 준비]
   // currentPw : 기존 비밀번호 입력
@@ -81,12 +81,12 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
   const canSubmit = isPwMatched && !loading;
 
 
-  
+
   useEffect(() => {
     axiosInstance.get("mypage/user").then((res) => {
       setUserData(res.data);
       console.log(res.data);
-      
+
     });
   }, []);
 
@@ -101,35 +101,35 @@ export default function PasswordModal({ savedPassword = "1234", onClose = () => 
 
   // ===== 변경하기 (목 API 순서: 검증 → 변경) =====
   const handleConfirm = async () => {
-  if (!canSubmit) return;
-  setLoading(true);
-  setErrorTop("");
+    if (!canSubmit) return;
+    setLoading(true);
+    setErrorTop("");
 
-  try {
-    // PATCH 요청 (body는 일단 빈 객체)
+    try {
+      // PATCH 요청 (body는 일단 빈 객체)
 
-    const requestBody = {
-      nickname: userData?.nickname,
-      birthyear: userData?.birthYear,
-      password: newPw,
-      passwordConfirm: confirmPw
-    };
-    console.log("PATCH request body:", requestBody);
-    const response = await axiosInstance.patch("mypage/user-edit", requestBody);
-    // 성공 처리
-    if (response.status === 200) {
-      onChanged?.(); // 부모에게 알림
-      onClose();
-    } else {
-      setErrorTop("비밀번호 변경에 실패했습니다.");
+      const requestBody = {
+        nickname: userData?.nickname,
+        birthyear: userData?.birthYear,
+        password: newPw,
+        passwordConfirm: confirmPw
+      };
+      console.log("PATCH request body:", requestBody);
+      const response = await axiosInstance.patch("mypage/user-edit", requestBody);
+      // 성공 처리
+      if (response.status === 200) {
+        onChanged?.(); // 부모에게 알림
+        onClose();
+      } else {
+        setErrorTop("비밀번호 변경에 실패했습니다.");
+      }
+    } catch (e) {
+
+      setErrorTop("비밀번호 변경 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
     }
-  } catch (e) {
-    
-    setErrorTop("비밀번호 변경 중 오류가 발생했습니다.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
   // === 여기서 핵심: 포털 + fixed 백드롭으로 부모 레이아웃에 영향 0 ===
