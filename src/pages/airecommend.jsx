@@ -56,7 +56,7 @@ export default function AiRecommendation() {
           });
           setActiveStars(initialStars);
   
-          console.log(response.data);
+          console.log("북마크 데이터",response.data);
   
         } catch (err) {
           console.error("북마크 불러오기 실패:", err);
@@ -122,72 +122,47 @@ const toggleStar = (festivalId) => {
 };
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await axiosInstance.get("/festivals/recommend", {
-          params: { limit: 5 }, // 필요 없으면 제거 가능
-        });
-        const data = res?.data;
-        if (data?.success && Array.isArray(data?.data?.items)) {
-          setItems(data.data.items);
-          // 개발 중 확인용 로그 (원하면 삭제)
-          console.log("[AI RECO] items:", data.data.items);
-        } else {
-          setItems([]);
-        }
-      } catch (e) {
-        // 조용히 실패 (디자인 영향 없음)
-        console.warn("[AI RECO ERROR]", e?.response?.status, e?.response?.data || e?.message);
+  (async () => {
+    try {
+      const res = await axiosInstance.get("/festivals/recommend", { params: { limit: 5 } });
+      const data = res?.data;
+      
+      if (data?.success && Array.isArray(data?.data)) {
+        // data.data는 이제 [{title, items, totalCount}, ...] 구조
+        setItems(data.data); 
+        console.log("[AI RECO] items:", data.data);
+      } else {
         setItems([]);
       }
-    })();
-  }, []);
+    } catch (e) {
+      console.warn("[AI RECO ERROR]", e?.response?.status, e?.response?.data || e?.message);
+      setItems([]);
+    }
+  })();
+}, []);
+
 
   // 원본 디자인 유지: 카드 3개 + 각 카드의 슬라이드
   // 받은 items를 3그룹으로 분배(부족하면 순환 채움, 완전 비면 placeholder 그대로 보임)
-  const grouped = useMemo(() => {
-    const safe = Array.isArray(items) ? items : [];
-    const fill = (len) => {
-      if (safe.length === 0) return [];
-      const out = [];
-      for (let i = 0; i < len; i++) out.push(safe[i % safe.length]);
-      return out;
-    };
-    const g0 = safe.filter((_, i) => i % 3 === 0);
-    const g1 = safe.filter((_, i) => i % 3 === 1);
-    const g2 = safe.filter((_, i) => i % 3 === 2);
-    return [g0.length ? g0 : fill(3), g1.length ? g1 : fill(3), g2.length ? g2 : fill(3)];
-  }, [items]);
+const grouped = useMemo(() => {
+  if (!Array.isArray(items)) return [];
 
-  const cards = useMemo(
-    () => [
-      {
-        title: "힐링할 수 있는 축제",
-        subtitle:
-          items.length > 0
-            ? `${items[0].festivalName} 등 ${items.length}개`
-            : "모현읍 풍선 축제 등 3개",
-        list: grouped[0],
-      },
-      {
-        title: "혼자서도 즐길 수 있는 축제",
-        subtitle:
-          items.length > 1
-            ? `${(items[1] || items[0])?.festivalName} 등 ${items.length}개`
-            : "모현읍 풍선 축제 등 3개",
-        list: grouped[1],
-      },
-      {
-        title: "조용히 즐길 수 있는 축제",
-        subtitle:
-          items.length > 2
-            ? `${(items[2] || items[0])?.festivalName} 등 ${items.length}개`
-            : "모현읍 풍선 축제 등 3개",
-        list: grouped[2],
-      },
-    ],
-    [grouped, items]
-  );
+  return items.map(group => group.items || []);
+}, [items]);
+
+
+  const cards = useMemo(() => {
+  if (!Array.isArray(items)) return [];
+
+  return items.map(group => ({
+    title: group.title,
+    subtitle: group.items?.length
+      ? `${group.items[0].festivalName} 등 ${group.items.length}개`
+      : "축제 없음",
+    list: group.items || [],
+  }));
+}, [items]);
+
 
   return (
     <Container>

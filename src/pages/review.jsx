@@ -169,49 +169,6 @@ useEffect(() => {
 
 
 
-  const reviews = [
-    { title: "정말 재미있었어요!",
-      content: `혼자 가도 재미있게 즐길 수 있어요~`
-     },
-    {
-      title: "좋았어요!",
-      content: `혼자 가도 재미있게 즐길 수 있어요~
-먹을 게 많아요
-관계자 분들이 친절해요
-.
-..
-....
-......`,
-    },
-    { title: "정말 재미있었어요!",
-      content: `혼자 가도 재미있게 즐길 수 있어요~`
-    },
-    { title: "굿",
-      content: `혼자 가도 재미있게 즐길 수 있어요~`
-     },
-    { title: "별로예요",
-      content: `혼자 가도 재미있게 즐길 수 있어요~`
-     },
-    { title: "정말 재미있었어요!",
-      content: `혼자 가도 재미있게 즐길 수 있어요~`
-     },
-    { title: "정말 재미있었어요!",
-      content: `혼자 가도 재미있게 즐길 수 있어요~`
-     },
-     { title: "정말 재미있었어요!",
-      content: `혼자 가도 재미있게 즐길 수 있어요~`
-     },
-     { title: "정말 재미있었어요!",
-      content: `혼자 가도 재미있게 즐길 수 있어요~`
-     },
-     { title: "정말 재미있었어요!",
-      content: `혼자 가도 재미있게 즐길 수 있어요~`
-     },
-     { title: "정말 재미있었어요!",
-      content: `혼자 가도 재미있게 즐길 수 있어요~`
-     },
-  ];
-
   const toggleOpen = (index) => {
     if (openIndexes.includes(index)) {
       setOpenIndexes(openIndexes.filter((i) => i !== index));
