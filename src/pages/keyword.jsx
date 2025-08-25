@@ -191,7 +191,7 @@ export default function KeywordSelector() {
 
       if (response.data.success) {
         console.log("저장 성공:", response.data.data);
-        navigate("/airecommend", { state: { selectedIds } });
+        navigate("/loading", { state: { selectedIds } });
       } else {
         alert(response.data.error?.message || "키워드 저장 실패");
       }

@@ -51,7 +51,7 @@ export default function MyNavBar() {
             <Mp />
             <span>마이페이지</span>
         </NavItem>
-        <NavItem to ="/airecommend" $active={location.pathname === "/airecommend"}>
+        <NavItem to ="/keyword" $active={location.pathname === "/keyword"}>
             <Ai />
             <span>AI추천</span>
         </NavItem>
